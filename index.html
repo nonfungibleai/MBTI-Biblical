@@ -2,792 +2,1007 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>\ub098\uc758 \uc131\uacbd \uc778\ubb3c \ucc3e\uae30 \u2014 MBTI \u00d7 \ub9d0\uc500</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>✝️ 나의 성경 인물 찾기 — MBTI 매칭</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --gold: #C9A84C;
-    --gold-light: #E8D5A0;
-    --gold-dark: #8B6914;
-    --cream: #FAF6EE;
-    --parchment: #F0E8D5;
-    --ink: #1A1208;
-    --ink-light: #3D2E0E;
-    --stone: #8C7B5E;
-    --red: #8B2020;
-    --blue-deep: #1A2A4A;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--cream);
-    color: var(--ink);
-    font-family: 'Noto Serif KR', serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Parchment texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      radial-gradient(ellipse at 20% 10%, rgba(201,168,76,0.08) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 90%, rgba(139,105,20,0.06) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* \u2500\u2500 SCREEN SYSTEM \u2500\u2500 */
-  .screen { display: none; position: relative; z-index: 1; }
-  .screen.active { display: block; }
-
-  /* \u2500\u2500 INTRO SCREEN \u2500\u2500 */
-  #screen-intro {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 24px;
-    text-align: center;
-  }
-
-  .intro-ornament {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 48px;
-    color: var(--gold);
-    line-height: 1;
-    margin-bottom: 8px;
-    animation: fadeDown 1s ease both;
-  }
-
-  .intro-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(28px, 7vw, 42px);
-    font-weight: 600;
-    color: var(--ink);
-    line-height: 1.2;
-    margin-bottom: 6px;
-    animation: fadeDown 1s 0.15s ease both;
-  }
-
-  .intro-subtitle {
-    font-size: 13px;
-    color: var(--stone);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 32px;
-    animation: fadeDown 1s 0.3s ease both;
-  }
-
-  .intro-divider {
-    width: 120px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    margin: 0 auto 32px;
-    animation: fadeIn 1.2s 0.4s ease both;
-  }
-
-  .intro-desc {
-    max-width: 320px;
-    font-size: 15px;
-    line-height: 1.9;
-    color: var(--ink-light);
-    margin-bottom: 44px;
-    animation: fadeIn 1s 0.5s ease both;
-  }
-
-  .btn-start {
-    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-    color: var(--cream);
-    border: none;
-    padding: 16px 48px;
-    font-family: 'Noto Serif KR', serif;
-    font-size: 16px;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    border-radius: 2px;
-    box-shadow: 0 4px 24px rgba(139,105,20,0.3);
-    transition: all 0.3s;
-    animation: fadeIn 1s 0.7s ease both;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-start::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, transparent, rgba(255,255,255,0.15), transparent);
-    transform: translateX(-100%);
-    transition: transform 0.5s;
-  }
-
-  .btn-start:hover::after { transform: translateX(100%); }
-  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(139,105,20,0.4); }
-
-  .mbti-grid-preview {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    max-width: 280px;
-    margin: 0 auto 36px;
-    animation: fadeIn 1s 0.6s ease both;
-  }
-
-  .mbti-chip {
-    background: var(--parchment);
-    border: 1px solid var(--gold-light);
-    padding: 6px 4px;
-    font-size: 10px;
-    text-align: center;
-    color: var(--stone);
-    letter-spacing: 0.05em;
-    border-radius: 2px;
-  }
-
-  /* \u2500\u2500 QUIZ SCREEN \u2500\u2500 */
-  #screen-quiz {
-    min-height: 100vh;
-    padding: 0;
-  }
-
-  .quiz-header {
-    background: var(--ink);
-    padding: 20px 24px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .quiz-header-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 18px;
-    color: var(--gold-light);
-    flex: 1;
-  }
-
-  .quiz-step-badge {
-    background: var(--gold);
-    color: var(--ink);
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 20px;
-    letter-spacing: 0.05em;
-  }
-
-  .progress-bar-wrap {
-    background: rgba(255,255,255,0.1);
-    height: 3px;
-  }
-
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--gold-dark), var(--gold));
-    transition: width 0.5s ease;
-  }
-
-  .quiz-body {
-    padding: 36px 24px 24px;
-  }
-
-  .quiz-phase-label {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--gold-dark);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .quiz-question {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(20px, 5.5vw, 26px);
-    font-weight: 600;
-    line-height: 1.4;
-    color: var(--ink);
-    margin-bottom: 32px;
-  }
-
-  .quiz-options {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .quiz-option {
-    background: white;
-    border: 1.5px solid var(--parchment);
-    border-radius: 4px;
-    padding: 18px 20px;
-    cursor: pointer;
-    transition: all 0.25s;
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    text-align: left;
-  }
-
-  .quiz-option:hover {
-    border-color: var(--gold);
-    background: #FFFDF7;
-    transform: translateX(4px);
-    box-shadow: 0 2px 12px rgba(201,168,76,0.15);
-  }
-
-  .quiz-option.selected {
-    border-color: var(--gold);
-    background: linear-gradient(135deg, #FFFDF7, var(--parchment));
-    box-shadow: 0 4px 16px rgba(201,168,76,0.2);
-  }
-
-  .option-letter {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--parchment);
-    border: 1px solid var(--gold-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--gold-dark);
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .quiz-option.selected .option-letter {
-    background: var(--gold);
-    color: white;
-    border-color: var(--gold);
-  }
-
-  .option-text {
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--ink-light);
-  }
-
-  /* \u2500\u2500 MBTI SELECT SCREEN \u2500\u2500 */
-  #screen-select {
-    min-height: 100vh;
-    padding: 40px 24px;
-  }
-
-  .select-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--ink);
-    margin-bottom: 6px;
-    text-align: center;
-  }
-
-  .select-sub {
-    font-size: 13px;
-    color: var(--stone);
-    text-align: center;
-    margin-bottom: 32px;
-  }
-
-  .mbti-full-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-
-  .mbti-btn {
-    background: white;
-    border: 1.5px solid var(--parchment);
-    border-radius: 4px;
-    padding: 12px 6px;
-    font-family: 'Noto Serif KR', serif;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--stone);
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.05em;
-    text-align: center;
-  }
-
-  .mbti-btn:hover, .mbti-btn.active {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--gold-light);
-    transform: scale(1.05);
-  }
-
-  /* \u2500\u2500 RESULT SCREEN \u2500\u2500 */
-  #screen-result {
-    min-height: 100vh;
-    padding-bottom: 60px;
-  }
-
-  .result-hero {
-    background: var(--ink);
-    padding: 48px 24px 36px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .result-hero::before {
-    content: '';
-    position: absolute;
-    top: -40px; left: -40px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(201,168,76,0.15), transparent);
-  }
-
-  .result-hero::after {
-    content: '';
-    position: absolute;
-    bottom: -60px; right: -30px;
-    width: 180px; height: 180px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(201,168,76,0.1), transparent);
-  }
-
-  .result-mbti-tag {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 13px;
-    letter-spacing: 0.3em;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  .result-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(32px, 9vw, 52px);
-    font-weight: 600;
-    color: white;
-    margin-bottom: 4px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .result-figure-kr {
-    font-size: 15px;
-    color: var(--gold-light);
-    letter-spacing: 0.1em;
-    margin-bottom: 24px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .result-emoji {
-    font-size: 64px;
-    margin-bottom: 16px;
-    display: block;
-    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
-    position: relative;
-    z-index: 1;
-  }
-
-  .result-type-badge {
-    display: inline-block;
-    background: rgba(201,168,76,0.2);
-    border: 1px solid rgba(201,168,76,0.4);
-    color: var(--gold-light);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    padding: 5px 16px;
-    border-radius: 20px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .result-body {
-    padding: 32px 24px;
-  }
-
-  .result-section {
-    margin-bottom: 28px;
-  }
-
-  .section-label {
-    font-size: 10px;
-    letter-spacing: 0.25em;
-    color: var(--gold-dark);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--gold-light);
-  }
-
-  .result-desc {
-    font-size: 15px;
-    line-height: 1.9;
-    color: var(--ink-light);
-  }
-
-  .trait-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 4px;
-  }
-
-  .trait-chip {
-    background: var(--parchment);
-    border: 1px solid var(--gold-light);
-    color: var(--ink-light);
-    font-size: 12px;
-    padding: 6px 14px;
-    border-radius: 20px;
-  }
-
-  /* Scripture card */
-  .scripture-card {
-    background: linear-gradient(135deg, var(--ink) 0%, var(--blue-deep) 100%);
-    border-radius: 8px;
-    padding: 28px 24px;
-    position: relative;
-    overflow: hidden;
-    margin-top: 4px;
-  }
-
-  .scripture-card::before {
-    content: '\201C';
-    position: absolute;
-    top: -10px; left: 12px;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 120px;
-    color: rgba(201,168,76,0.15);
-    line-height: 1;
-  }
-
-  .scripture-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(16px, 4.5vw, 20px);
-    font-style: italic;
-    color: var(--gold-light);
-    line-height: 1.7;
-    margin-bottom: 16px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .scripture-ref {
-    font-size: 12px;
-    color: var(--stone);
-    letter-spacing: 0.1em;
-    position: relative;
-    z-index: 1;
-  }
-
-  .strength-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 4px;
-  }
-
-  .strength-item {
-    background: white;
-    border: 1px solid var(--parchment);
-    border-radius: 6px;
-    padding: 14px;
-    border-left: 3px solid var(--gold);
-  }
-
-  .strength-title {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--gold-dark);
-    margin-bottom: 4px;
-    letter-spacing: 0.05em;
-  }
-
-  .strength-desc {
-    font-size: 12px;
-    color: var(--stone);
-    line-height: 1.5;
-  }
-
-  .growth-card {
-    background: white;
-    border: 1px solid var(--parchment);
-    border-radius: 6px;
-    padding: 20px;
-    border-top: 3px solid var(--red);
-    margin-top: 4px;
-  }
-
-  .growth-text {
-    font-size: 14px;
-    line-height: 1.8;
-    color: var(--ink-light);
-  }
-
-  .result-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 0 24px;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-    color: var(--cream);
-    border: none;
-    padding: 16px;
-    font-family: 'Noto Serif KR', serif;
-    font-size: 15px;
-    cursor: pointer;
-    border-radius: 4px;
-    width: 100%;
-    letter-spacing: 0.05em;
-    transition: all 0.25s;
-  }
-
-  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-
-  .btn-secondary {
-    background: white;
-    color: var(--ink);
-    border: 1.5px solid var(--parchment);
-    padding: 15px;
-    font-family: 'Noto Serif KR', serif;
-    font-size: 15px;
-    cursor: pointer;
-    border-radius: 4px;
-    width: 100%;
-    letter-spacing: 0.05em;
-    transition: all 0.25s;
-  }
-
-  .btn-secondary:hover { border-color: var(--gold); }
-
-  /* \u2500\u2500 ANIMATIONS \u2500\u2500 */
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .animate-in {
-    animation: slideUp 0.5s ease both;
-  }
-
-  /* Loading */
-  .loading-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--ink);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    transition: opacity 0.5s;
-  }
-
-  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-
-  .loading-cross {
-    font-size: 48px;
-    color: var(--gold);
-    margin-bottom: 24px;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-
-  .loading-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    color: var(--gold-light);
-    letter-spacing: 0.15em;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.6; transform: scale(0.95); }
-  }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Nanum Gothic',sans-serif; background:#FFF9F0; color:#222; overflow-x:hidden; }
+
+/* ── 화면 전환 ── */
+.screen { display:none; min-height:100vh; }
+.screen.active { display:block; }
+
+/* ── 공통 버튼 ── */
+.btn-main {
+  display:block; width:100%; padding:16px; border:none; border-radius:50px;
+  font-family:'Nanum Gothic',sans-serif; font-size:17px; font-weight:800;
+  cursor:pointer; letter-spacing:0.03em;
+  transition:transform 0.15s, box-shadow 0.15s;
+}
+.btn-main:active { transform:scale(0.97); }
+.btn-sub {
+  display:block; width:100%; padding:14px; background:white;
+  border:2.5px solid #E8E8E8; border-radius:50px;
+  font-family:'Nanum Gothic',sans-serif; font-size:15px; font-weight:700;
+  cursor:pointer; color:#555; transition:all 0.15s;
+}
+.btn-sub:active { background:#F5F5F5; }
+
+/* ── 인트로 ── */
+#intro {
+  background:linear-gradient(160deg,#FFF9C4 0%,#FFE0F0 50%,#E0F0FF 100%);
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding:36px 24px; text-align:center;
+}
+.intro-cross { font-size:56px; margin-bottom:10px; animation:bounce 1.4s infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+.intro-title1 { font-size:30px; font-weight:800; color:#C0392B; line-height:1.2; }
+.intro-title2 { font-size:30px; font-weight:800; color:#2980B9; margin-bottom:14px; }
+.intro-badge {
+  display:inline-block; background:rgba(142,68,173,0.12); color:#8E44AD;
+  font-size:13px; font-weight:700; padding:6px 18px; border-radius:20px;
+  margin-bottom:20px; letter-spacing:0.08em;
+}
+.intro-card {
+  background:white; border-radius:20px; padding:20px 22px;
+  max-width:320px; margin-bottom:24px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.10);
+  font-size:14px; line-height:2; color:#555;
+}
+.preview-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:8px; max-width:320px; margin-bottom:26px;
+}
+.preview-chip {
+  background:white; border-radius:12px; padding:8px 4px;
+  font-size:12px; font-weight:800; cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+  transition:transform 0.15s;
+}
+.preview-chip:active { transform:scale(0.95); }
+.intro-link { font-size:13px; color:#8E44AD; cursor:pointer; text-decoration:underline; margin-top:12px; }
+
+/* ── 퀴즈 ── */
+#quiz { background:linear-gradient(160deg,#FFF9C4,#FFE0F0); }
+.quiz-header {
+  background:linear-gradient(135deg,#C0392B,#E74C3C);
+  padding:16px 20px 12px; color:white;
+}
+.quiz-header-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.quiz-title { font-size:17px; font-weight:800; }
+.quiz-badge {
+  background:rgba(255,255,255,0.25); padding:4px 14px;
+  border-radius:20px; font-size:13px; font-weight:800;
+}
+.progress-track { background:rgba(255,255,255,0.3); border-radius:10px; height:8px; }
+.progress-fill { background:white; border-radius:10px; height:8px; transition:width 0.4s ease; }
+.quiz-body { padding:28px 20px 20px; }
+.phase-label {
+  display:inline-block; background:rgba(142,68,173,0.12); color:#8E44AD;
+  font-size:12px; font-weight:800; padding:5px 14px; border-radius:20px;
+  margin-bottom:14px; letter-spacing:0.05em;
+}
+.quiz-q { font-size:21px; font-weight:800; color:#2C3E50; line-height:1.4; margin-bottom:26px; }
+.options-wrap { display:flex; flex-direction:column; gap:12px; }
+.opt-btn {
+  background:white; border:2.5px solid #F0D0E0; border-radius:16px;
+  padding:18px 18px; cursor:pointer; display:flex; align-items:center;
+  gap:14px; text-align:left; width:100%; transition:all 0.2s;
+  font-family:'Nanum Gothic',sans-serif;
+}
+.opt-btn:active, .opt-btn.selected {
+  background:linear-gradient(135deg,#E74C3C,#C0392B);
+  border-color:transparent;
+  box-shadow:0 6px 20px rgba(231,76,60,0.35);
+  transform:scale(1.02);
+}
+.opt-letter {
+  width:36px; height:36px; border-radius:50%;
+  background:#FFE0F0; display:flex; align-items:center; justify-content:center;
+  font-size:15px; font-weight:800; color:#C0392B; flex-shrink:0;
+}
+.opt-btn.selected .opt-letter { background:rgba(255,255,255,0.25); color:white; }
+.opt-text { font-size:15px; line-height:1.6; color:#2C3E50; font-weight:700; }
+.opt-btn.selected .opt-text { color:white; }
+.quiz-back-btn { background:none; border:none; color:#999; font-size:13px; cursor:pointer; padding:12px 0; font-family:'Nanum Gothic',sans-serif; }
+
+/* ── MBTI 선택 ── */
+#select { background:linear-gradient(160deg,#FFF9C4,#E0F0FF); padding:36px 20px; }
+.select-header { text-align:center; margin-bottom:28px; }
+.select-icon { font-size:44px; margin-bottom:8px; }
+.select-title { font-size:24px; font-weight:800; color:#2C3E50; margin-bottom:6px; }
+.select-sub { font-size:13px; color:#999; }
+.mbti-grid {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:10px; max-width:360px; margin:0 auto 24px;
+}
+.mbti-type-btn {
+  background:white; border-radius:12px; padding:12px 4px;
+  cursor:pointer; font-family:'Nanum Gothic',sans-serif;
+  font-size:13px; font-weight:800; line-height:1.5;
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  transition:transform 0.15s; text-align:center;
+}
+.mbti-type-btn:active { transform:scale(0.95); }
+.mbti-emoji { font-size:20px; display:block; margin-top:2px; }
+.select-back { text-align:center; }
+.select-back-btn { background:none; border:none; color:#999; font-size:13px; cursor:pointer; text-decoration:underline; font-family:'Nanum Gothic',sans-serif; }
+
+/* ── 결과 ── */
+#result { background:#F8F9FA; padding-bottom:60px; }
+.result-hero {
+  padding:36px 24px 28px; text-align:center;
+  position:relative; overflow:hidden;
+}
+.hero-bubble1 {
+  position:absolute; top:-30px; left:-30px; width:120px; height:120px;
+  border-radius:50%; background:rgba(255,255,255,0.1);
+}
+.hero-bubble2 {
+  position:absolute; bottom:-40px; right:-20px; width:150px; height:150px;
+  border-radius:50%; background:rgba(255,255,255,0.08);
+}
+.hero-type { font-size:13px; color:rgba(255,255,255,0.88); letter-spacing:0.2em; margin-bottom:6px; font-weight:800; }
+.hero-char { display:flex; justify-content:center; margin-bottom:8px; filter:drop-shadow(0 8px 16px rgba(0,0,0,0.2)); position:relative; z-index:1; }
+.hero-name { font-size:34px; font-weight:800; color:white; margin-bottom:4px; position:relative; z-index:1; }
+.hero-sub { font-size:15px; color:rgba(255,255,255,0.9); margin-bottom:14px; position:relative; z-index:1; }
+.hero-emoji-badge {
+  display:inline-block; background:rgba(255,255,255,0.2);
+  color:white; font-size:22px; padding:8px 20px; border-radius:30px;
+  position:relative; z-index:1;
+}
+.result-body { padding:24px 20px; }
+.sec { margin-bottom:22px; }
+.sec-label {
+  font-size:12px; font-weight:800; letter-spacing:0.1em;
+  margin-bottom:10px; display:flex; align-items:center; gap:8px;
+}
+.sec-line { flex:1; height:2px; border-radius:2px; }
+.result-desc { font-size:15px; line-height:2; color:#444; }
+.strength-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.strength-item {
+  border-radius:14px; padding:14px 12px;
+  border-left:4px solid; font-size:14px; font-weight:800; color:#333;
+}
+.scripture-card {
+  border-radius:16px; padding:22px 20px;
+  position:relative; overflow:hidden;
+}
+.scripture-quote {
+  position:absolute; top:-10px; left:8px; font-size:80px;
+  color:rgba(255,255,255,0.08); font-family:serif; line-height:1;
+  pointer-events:none;
+}
+.scripture-text { font-size:16px; line-height:1.9; font-style:italic; margin-bottom:12px; position:relative; z-index:1; }
+.scripture-ref { font-size:12px; font-weight:800; position:relative; z-index:1; }
+.growth-card {
+  background:white; border-radius:14px; padding:18px 16px;
+  border-top:4px solid #27AE60; box-shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+.growth-text { font-size:14px; line-height:1.9; color:#444; }
+.other-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.other-btn {
+  border-radius:10px; padding:8px 4px; cursor:pointer;
+  font-family:'Nanum Gothic',sans-serif; font-size:11px; font-weight:800;
+  line-height:1.5; text-align:center; transition:transform 0.15s;
+}
+.other-btn:active { transform:scale(0.95); }
+.other-emoji { font-size:15px; display:block; margin-top:2px; }
+.result-actions { padding:0 20px; display:flex; flex-direction:column; gap:12px; }
 </style>
 </head>
 <body>
 
-<!-- Loading -->
-<div class="loading-overlay" id="loading">
-  <div class="loading-cross">\u271e</div>
-  <div class="loading-text">\ub9d0\uc500\uc744 \ubd88\ub7ec\uc624\ub294 \uc911\u2026</div>
-</div>
-
-<!-- \u2500\u2500 INTRO \u2500\u2500 -->
-<div class="screen active" id="screen-intro">
-  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;">
-    <div class="intro-ornament">\u2726 \u271e \u2726</div>
-    <h1 class="intro-title">\ub098\uc758 \uc131\uacbd \uc778\ubb3c<br>\ucc3e\uae30</h1>
-    <p class="intro-subtitle">MBTI \u00d7 \uc131\uacbd \uc778\ubb3c \ub9e4\uce6d</p>
-    <div class="intro-divider"></div>
-    <p class="intro-desc">
-      \ud558\ub098\ub2d8\uaed8\uc11c\ub294 \uac01 \uc0ac\ub78c\uc744 \ub2e4\ub974\uac8c \uc9c0\uc73c\uc168\uc2b5\ub2c8\ub2e4.<br>
-      \ub2f9\uc2e0\uc758 \uc131\ud488\uacfc \ub2ee\uc740 \uc131\uacbd \uc18d \uc778\ubb3c\uc744 \ucc3e\uace0,<br>
-      \ud558\ub098\ub2d8\uc774 \uc8fc\uc2e0 \uc7a5\uc810\uc744 \ub9d0\uc500\uc73c\ub85c \ubc1c\uc804\uc2dc\ucf1c \ubcf4\uc138\uc694.
-    </p>
-    <div class="mbti-grid-preview">
-      <div class="mbti-chip">INTJ</div><div class="mbti-chip">ENTJ</div><div class="mbti-chip">INFJ</div><div class="mbti-chip">ENFJ</div>
-      <div class="mbti-chip">INTP</div><div class="mbti-chip">ENTP</div><div class="mbti-chip">INFP</div><div class="mbti-chip">ENFP</div>
-      <div class="mbti-chip">ISTJ</div><div class="mbti-chip">ESTJ</div><div class="mbti-chip">ISFJ</div><div class="mbti-chip">ESFJ</div>
-      <div class="mbti-chip">ISTP</div><div class="mbti-chip">ESTP</div><div class="mbti-chip">ISFP</div><div class="mbti-chip">ESFP</div>
-    </div>
-    <button class="btn-start" onclick="showQuiz()">\u2726 \ub098\uc758 \uc720\ud615 \uc54c\uc544\ubcf4\uae30</button>
-    <p style="margin-top:20px;font-size:12px;color:var(--stone);cursor:pointer;" onclick="showSelect()">
-      \uc774\ubbf8 MBTI\ub97c \uc54c\uace0 \uc788\ub2e4\uba74 \u2192
-    </p>
+<!-- ════════════ 인트로 ════════════ -->
+<div id="intro" class="screen active">
+  <div class="intro-cross">✝️</div>
+  <div class="intro-title1">나의 성경 인물</div>
+  <div class="intro-title2">찾기! 🎉</div>
+  <div class="intro-badge">MBTI × 성경 인물 매칭</div>
+  <div class="intro-card">
+    하나님은 모든 사람을 <strong>다르게</strong> 만드셨어요! 🌈<br>
+    나는 어떤 성경 인물과 닮았을까요?<br>
+    12가지 질문으로 알아봐요! 😊
   </div>
+  <div class="preview-grid" id="previewGrid"></div>
+  <button class="btn-main" onclick="startQuiz()"
+    style="background:linear-gradient(135deg,#E74C3C,#C0392B);color:white;max-width:320px;box-shadow:0 6px 20px rgba(231,76,60,0.4);">
+    🚀 시작하기!
+  </button>
+  <div class="intro-link" onclick="showSelect()">이미 MBTI를 알아요 →</div>
 </div>
 
-<!-- \u2500\u2500 QUIZ \u2500\u2500 -->
-<div class="screen" id="screen-quiz">
+<!-- ════════════ 퀴즈 ════════════ -->
+<div id="quiz" class="screen">
   <div class="quiz-header">
-    <span class="quiz-header-title">\uc131\ud488 \uc720\ud615 \uac80\uc0ac</span>
-    <span class="quiz-step-badge" id="quiz-step-badge">1/12</span>
-  </div>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-fill" id="progress-fill" style="width:8%"></div>
+    <div class="quiz-header-top">
+      <span class="quiz-title">✝️ 성품 검사</span>
+      <span class="quiz-badge" id="qBadge">1 / 12</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:8%"></div>
+    </div>
   </div>
   <div class="quiz-body">
-    <div class="quiz-phase-label" id="quiz-phase"></div>
-    <div class="quiz-question" id="quiz-question"></div>
-    <div class="quiz-options" id="quiz-options"></div>
+    <div class="phase-label" id="qPhase"></div>
+    <div class="quiz-q" id="qText"></div>
+    <div class="options-wrap" id="qOptions"></div>
+    <button class="quiz-back-btn" onclick="showIntro()">← 처음으로</button>
   </div>
 </div>
 
-<!-- \u2500\u2500 MBTI SELECT \u2500\u2500 -->
-<div class="screen" id="screen-select">
-  <div style="padding:40px 24px;">
-    <div style="text-align:center;margin-bottom:32px;">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:36px;color:var(--gold);margin-bottom:4px;">\u271e</div>
-      <h2 class="select-title">\ub098\uc758 MBTI \uc120\ud0dd</h2>
-      <p class="select-sub">\uc544\ub798\uc5d0\uc11c \ub2f9\uc2e0\uc758 \uc720\ud615\uc744 \uc120\ud0dd\ud558\uc138\uc694</p>
-    </div>
-    <div class="mbti-full-grid" id="mbti-select-grid"></div>
-    <p style="text-align:center;font-size:12px;color:var(--stone);cursor:pointer;margin-top:16px;" onclick="showIntro()">\u2190 \ucc98\uc74c\uc73c\ub85c</p>
+<!-- ════════════ MBTI 선택 ════════════ -->
+<div id="select" class="screen">
+  <div class="select-header">
+    <div class="select-icon">🧩</div>
+    <div class="select-title">내 MBTI 선택하기</div>
+    <div class="select-sub">아래에서 나의 유형을 눌러봐요!</div>
+  </div>
+  <div class="mbti-grid" id="mbtiGrid"></div>
+  <div class="select-back">
+    <button class="select-back-btn" onclick="showIntro()">← 처음으로</button>
   </div>
 </div>
 
-<!-- \u2500\u2500 RESULT \u2500\u2500 -->
-<div class="screen" id="screen-result">
-  <div class="result-hero">
-    <div class="result-mbti-tag" id="r-mbti">INFJ</div>
-    <span class="result-emoji" id="r-emoji">\ud83d\udd4a\ufe0f</span>
-    <div class="result-name" id="r-name">\uc694\uc149</div>
-    <div class="result-figure-kr" id="r-subtitle">Joseph \u2014 \uafc8\uc744 \ubcf4\ub294 \uc790</div>
-    <div class="result-type-badge" id="r-badge">\uc120\uc9c0\uc790\ud615 \u00b7 \ud1b5\ucc30\uc758 \ub9ac\ub354</div>
+<!-- ════════════ 결과 ════════════ -->
+<div id="result" class="screen">
+  <div class="result-hero" id="resultHero">
+    <div class="hero-bubble1"></div>
+    <div class="hero-bubble2"></div>
+    <div class="hero-type" id="rType"></div>
+    <div class="hero-char" id="rChar"></div>
+    <div class="hero-name" id="rName"></div>
+    <div class="hero-sub" id="rSub"></div>
+    <div class="hero-emoji-badge" id="rEmoji"></div>
   </div>
-
   <div class="result-body">
-    <div class="result-section">
-      <div class="section-label">\uc131\uacbd \uc778\ubb3c \uc18c\uac1c</div>
-      <p class="result-desc" id="r-desc"></p>
+    <div class="sec">
+      <div class="sec-label" id="lbl1">✝️ 성경 인물 소개 <div class="sec-line" id="line1"></div></div>
+      <div class="result-desc" id="rDesc"></div>
     </div>
-
-    <div class="result-section">
-      <div class="section-label">\ub098\uc758 \uc7a5\uc810</div>
-      <div class="strength-grid" id="r-strengths"></div>
+    <div class="sec">
+      <div class="sec-label" id="lbl2">💪 나의 장점 <div class="sec-line" id="line2"></div></div>
+      <div class="strength-grid" id="rStrengths"></div>
     </div>
-
-    <div class="result-section">
-      <div class="section-label">\ub9d0\uc500\uc73c\ub85c \ud0a4\uc6b0\ub294 \uc7a5\uc810</div>
-      <div class="scripture-card">
-        <div class="scripture-text" id="r-scripture"></div>
-        <div class="scripture-ref" id="r-scripture-ref"></div>
+    <div class="sec">
+      <div class="sec-label" id="lbl3">📖 나를 위한 말씀 ① <div class="sec-line" id="line3"></div></div>
+      <div class="scripture-card" id="rScripCard1" style="background:linear-gradient(135deg,#2C3E50,#1A252F);">
+        <div class="scripture-quote">"</div>
+        <div class="scripture-text" id="rScripText1" style="color:#F8E9A0;"></div>
+        <div class="scripture-ref" id="rScripRef1" style="color:#F39C12;"></div>
       </div>
     </div>
-
-    <div class="result-section">
-      <div class="section-label">\ub450 \ubc88\uc9f8 \ub9d0\uc500</div>
-      <div class="scripture-card" style="background:linear-gradient(135deg,#2A1A08,#3D2A14);">
-        <div class="scripture-text" id="r-scripture2"></div>
-        <div class="scripture-ref" id="r-scripture-ref2"></div>
+    <div class="sec">
+      <div class="sec-label" id="lbl4">📖 나를 위한 말씀 ② <div class="sec-line" id="line4"></div></div>
+      <div class="scripture-card" style="background:linear-gradient(135deg,#3D1A3A,#2C1228);">
+        <div class="scripture-quote">"</div>
+        <div class="scripture-text" id="rScripText2" style="color:#F8C6E8;"></div>
+        <div class="scripture-ref" id="rScripRef2" style="color:#E74C3C;"></div>
       </div>
     </div>
-
-    <div class="result-section">
-      <div class="section-label">\uc131\uc7a5 \ud3ec\uc778\ud2b8</div>
-      <div class="growth-card">
-        <div class="growth-text" id="r-growth"></div>
-      </div>
+    <div class="sec">
+      <div class="sec-label" id="lbl5">🌱 이렇게 성장해봐요! <div class="sec-line" id="line5"></div></div>
+      <div class="growth-card"><div class="growth-text" id="rGrowth"></div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-label" id="lbl6">🧩 다른 유형 구경하기 <div class="sec-line" id="line6"></div></div>
+      <div class="other-grid" id="rOthers"></div>
     </div>
   </div>
-
   <div class="result-actions">
-    <button class="btn-primary" onclick="showIntro()">\u2726 \ucc98\uc74c\uc73c\ub85c \ub3cc\uc544\uac00\uae30</button>
-    <button class="btn-secondary" onclick="showSelect()">\ub2e4\ub978 \uc720\ud615 \ubcf4\uae30</button>
+    <button class="btn-main" id="btnRetry" onclick="startQuiz()"
+      style="color:white;">🔄 다시 해보기</button>
+    <button class="btn-sub" onclick="showIntro()">🏠 처음으로</button>
   </div>
-  <div style="height:32px;"></div>
 </div>
 
 <script>
-// \u2500\u2500 DATA \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-const MBTI_DATA = {
-  INTJ: {
-    name: "\ub2e4\ub2c8\uc5d8", emoji: "\ud83d\udcdc", subtitle: "Daniel \u2014 \uc9c0\ud61c\ub85c\uc6b4 \uc120\uc9c0\uc790",
-    badge: "\uc804\ub7b5\uac00\ud615 \u00b7 \ud558\ub098\ub2d8\uc758 \uc9c0\ud61c\uc790",
-    desc: "\ub2e4\ub2c8\uc5d8\uc740 \ub6f0\uc5b4\ub09c \ud1b5\ucc30\ub825\uacfc \ucca0\uc800\ud55c \uc6d0\uce59\uc73c\ub85c \ubc14\ubca8\ub860 \uc655\uad6d\uc5d0\uc11c\ub3c4 \ud558\ub098\ub2d8\uc758 \ub73b\uc744 \uc9c0\ucf30\uc2b5\ub2c8\ub2e4. \ud3ec\ub85c\uc758 \uc2e0\ubd84\uc774\uc5c8\uc9c0\ub9cc \ud0c1\uc6d4\ud55c \uc9c0\ud61c\uc640 \ubd84\ubcc4\ub825\uc73c\ub85c \uc655\uc758 \uc2e0\uc784\uc744 \uc5bb\uc5c8\uc73c\uba70, \uc5b4\ub5a4 \uc555\ubc15\uc5d0\ub3c4 \ud754\ub4e4\ub9ac\uc9c0 \uc54a\ub294 \ub0b4\uc801 \ud655\uc2e0\uc744 \uac00\uc9c4 \uc778\ubb3c\uc774\uc5c8\uc2b5\ub2c8\ub2e4.",
-    strengths: [{t:"\uc804\ub7b5\uc801 \uc0ac\uace0",d:"\ud070 \uadf8\ub9bc\uc744 \ubcf4\uba70 \uc7a5\uae30\uc801\uc73c\ub85c \uacc4\ud68d\ud569\ub2c8\ub2e4"},{t:"\uc6d0\uce59 \uace0\uc218",d:"\uc5b4\ub5a4 \uc0c1\ud669\uc5d0\uc11c\ub3c4 \uc2e0\ub150\uc744 \uc9c0\ud0b5\ub2c8\ub2e4"},{t:"\ud0c1\uc6d4\ud55c \ud1b5\ucc30",d:"\ubb38\uc81c\uc758 \ubcf8\uc9c8\uc744 \uaff0\ub6ab\uc5b4 \ubd05\ub2c8\ub2e4"},{t:"\ub3c5\ub9bd\uc801 \uacb0\ub2e8",d:"\ud640\ub85c\uc11c\ub3c4 \uc633\uc740 \uae38\uc744 \ud0dd\ud569\ub2c8\ub2e4"}],
-    scripture: "\uc624\uc9c1 \uc9c0\ud61c\ub294 \ud558\ub098\ub2d8\uaed8\ub85c\ubd80\ud130 \ub098\uc624\uba70 \uc9c0\uc2dd\uacfc \uba85\ucca0\ub3c4 \uadf8\uc5d0\uac8c\uc11c \ub098\ub290\ub2c8\ub77c",
-    scripture_ref: "\uc7a0\uc5b8 2:6",
-    scripture2: "\ub124\uac00 \uc774 \ub098\ub77c\ub97c \ub9e1\uc544\uc11c \ub2e4\uc2a4\ub9b4 \uac83\uc744 \uc774\ub294 \ub124\uac00 \ub0b4 \uc548\uc5d0 \uc788\ub294 \uc601\uc774 \uc788\uae30 \ub54c\ubb38\uc774\ub77c",
-    scripture_ref2: "\ub2e4\ub2c8\uc5d8 5:14",
-    growth: "INTJ\uc758 \uac00\uc7a5 \ud070 \uc131\uc7a5 \ud3ec\uc778\ud2b8\ub294 '\uad00\uacc4'\uc785\ub2c8\ub2e4. \ub2e4\ub2c8\uc5d8\ub3c4 \uc138 \uce5c\uad6c \ud558\ub098\ub0d0, \ubbf8\uc0ac\uc5d8, \uc544\uc0ac\ub7b4\uc640 \ud568\uaed8\ud588\uc2b5\ub2c8\ub2e4. \ud63c\uc790 \ubaa8\ub4e0 \uac83\uc744 \uc9ca\uc5b4\uc9c0\ub824 \ud558\uc9c0 \ub9d0\uace0, \ud558\ub098\ub2d8\uc774 \uc8fc\uc2e0 \uc0ac\ub78c\ub4e4\uacfc \ud568\uaed8 \uac77\ub294 \ubc95\uc744 \ubc30\uc6cc\ubcf4\uc138\uc694."
-  },
-  ENTJ: {
-    name: "\ub290\ud5e4\ubbf8\uc57c", emoji: "\ud83c\udfdb\ufe0f", subtitle: "Nehemiah \u2014 \uc131\ubcbd\uc744 \uc138\uc6b4 \uc9c0\ub3c4\uc790",
-    badge: "\ud1b5\uc194\uc790\ud615 \u00b7 \uc0ac\uba85\uc758 \uac74\ucd95\uac00",
-    desc: "\ub290\ud5e4\ubbf8\uc57c\ub294 \uc608\ub8e8\uc0b4\ub818 \uc131\ubcbd \uc7ac\uac74\uc774\ub77c\ub294 \ubd88\uac00\ub2a5\ud574 \ubcf4\uc774\ub294 \uc0ac\uba85\uc744 \ubc1b\uace0, \ud0c1\uc6d4\ud55c \ub9ac\ub354\uc2ed\uacfc \uc870\uc9c1\ub825\uc73c\ub85c 52\uc77c \ub9cc\uc5d0 \uc131\ubcbd\uc744 \uc644\uc131\ud588\uc2b5\ub2c8\ub2e4. \uba85\ud655\ud55c \ube44\uc804, \uac15\ud55c \uc2e4\ud589\ub825, \ubc18\ub300\uc790\ub4e4\uc5d0 \ub9de\uc11c\ub294 \uc6a9\uae30\uac00 \uadf8\uc758 \ud2b9\uc9d5\uc785\ub2c8\ub2e4.",
-    strengths: [{t:"\uac15\ub825\ud55c \ub9ac\ub354\uc2ed",d:"\uc0ac\ub78c\ub4e4\uc744 \ube44\uc804\uc73c\ub85c \uc774\ub055\ub2c8\ub2e4"},{t:"\uc2e4\ud589 \uc911\uc2ec",d:"\uacc4\ud68d\uc744 \uc989\uc2dc \ud589\ub3d9\uc73c\ub85c \uc62e\uae41\ub2c8\ub2e4"},{t:"\ubaa9\ud45c \uc9c0\ud5a5",d:"\ubc29\ud574\uc5d0 \ud754\ub4e4\ub9ac\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4"},{t:"\uc870\uc9c1 \ub2a5\ub825",d:"\ubcf5\uc7a1\ud55c \uc77c\ub3c4 \uccb4\uacc4\uc801\uc73c\ub85c \uc644\uc131\ud569\ub2c8\ub2e4"}],
-    scripture: "\uc774 \uc77c\uc740 \uc6b0\ub9ac \ud558\ub098\ub2d8\uc774 \ub3c4\uc6b0\uc2e0 \uac83\uc774\ub77c \uc801\uad70\uc774 \uc774 \uc0ac\uc2e4\uc744 \uc54c\uace0 \ub2e4 \ub450\ub824\uc6cc\ud558\uc600\ub290\ub2c8\ub77c",
-    scripture_ref: "\ub290\ud5e4\ubbf8\uc57c 6:16",
-    scripture2: "\ub108\ud76c\ub294 \uac15\ud558\uace0 \ub2f4\ub300\ud558\ub77c \ub450\ub824\uc6cc\ud558\uc9c0 \ub9d0\ub77c \uadf8\ub4e4 \uc55e\uc5d0\uc11c \ub5a8\uc9c0 \ub9d0\ub77c",
-    scripture_ref2: "\uc2e0\uba85\uae30 31:6",
-    growth: "\ud0c0\uc778\uc758 \uac10\uc815\uc744 \uc774\ud574\ud558\ub294 \ub530\ub73b\ud568\uc744 \uae30\ub974\uc138\uc694. \ub290\ud5e4\ubbf8\uc57c\ub294 \ubc31\uc131\ub4e4\uc758 \ub208\ubb3c\uc744 \ubcf4\uba70 \uae30\ub3c4\ud588\uc2b5\ub2c8\ub2e4. \uac15\ud55c \ucd94\uc9c4\ub825\uacfc \ud568\uaed8 \uc12c\uc138\ud55c \uacf5\uac10\uc774 \ub354\ud574\uc9c8 \ub54c \uc9c4\uc815\ud55c \ub9ac\ub354\uac00 \ub429\ub2c8\ub2e4."
-  },
-  INFJ: {
-    name: "\uc694\uc149", emoji: "\ud83d\udd4a\ufe0f", subtitle: "Joseph \u2014 \uafc8\uc744 \ubcf4\ub294 \uc120\uc9c0\uc790",
-    badge: "\uc120\ub3c4\uc790\ud615 \u00b7 \uafc8\uc758 \ud574\uc11d\uc790",
-    desc: "\uc694\uc149\uc740 \uae4a\uc740 \ud1b5\ucc30\ub825\uacfc \uafc8\uc744 \ud1b5\ud574 \ubbf8\ub798\ub97c \ubcf4\ub294 \ub2a5\ub825\uc744 \uac00\uc9c4 \uc778\ubb3c\uc774\uc5c8\uc2b5\ub2c8\ub2e4. \ud615\ub4e4\uc5d0\uac8c \ud314\ub9ac\uace0 \uac10\uc625\uc5d0 \uac07\ud788\ub294 \uace0\ub09c \uc18d\uc5d0\uc11c\ub3c4 \ud558\ub098\ub2d8\uc758 \uacc4\ud68d\uc744 \uc2e0\ub8b0\ud558\uba70, \uacb0\uad6d \uc774\uc9d1\ud2b8\uc758 \ucd1d\ub9ac\uac00 \ub418\uc5b4 \ub9ce\uc740 \uc0dd\uba85\uc744 \uad6c\ud588\uc2b5\ub2c8\ub2e4. \uc774\uc0c1\uc744 \ud5a5\ud55c \uae4a\uc740 \ub0b4\uba74\uc758 \ud655\uc2e0\uc774 \uadf8\ub97c \uc774\ub04c\uc5c8\uc2b5\ub2c8\ub2e4.",
-    strengths: [{t:"\uae4a\uc740 \ud1b5\ucc30",d:"\uc0ac\ub78c\uacfc \uc0c1\ud669\uc758 \ubcf8\uc9c8\uc744 \ubd05\ub2c8\ub2e4"},{t:"\uac15\ud55c \uc2e0\ub150",d:"\uace0\ub09c \uc18d\uc5d0\uc11c\ub3c4 \ud76c\ub9dd\uc744 \uc783\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4"},{t:"\uacf5\uac10 \ub2a5\ub825",d:"\ud0c0\uc778\uc758 \uc544\ud514\uc744 \uc9c4\uc2ec\uc73c\ub85c \uc774\ud574\ud569\ub2c8\ub2e4"},{t:"\ubbf8\ub798 \uc9c0\ud5a5",d:"\ud070 \uadf8\ub9bc \uc18d\uc5d0\uc11c \uc758\ubbf8\ub97c \ucc3e\uc2b5\ub2c8\ub2e4"}],
-    scripture: "\ub2f9\uc2e0\ub4e4\uc774 \ub098\ub97c \uc774 \uacf3\uc5d0 \ud314\uc558\ub2e4\uace0 \ud574\uc11c \uadfc\uc2ec\ud558\uc9c0 \ub9c8\uc18c\uc11c \ud558\ub098\ub2d8\uc774 \uc0dd\uba85\uc744 \uad6c\uc6d0\ud558\uc2dc\ub824\uace0 \ub098\ub97c \ub2f9\uc2e0\ub4e4\ubcf4\ub2e4 \uba3c\uc800 \ubcf4\ub0b4\uc168\ub098\uc774\ub2e4",
-    scripture_ref: "\ucc3d\uc138\uae30 45:5",
-    scripture2: "\ub0b4\uac00 \ubaa8\ub4e0 \uac83\uc744 \ud560 \uc218 \uc788\ub290\ub2c8\ub77c \u2014 \ub098\uc5d0\uac8c \ub2a5\ub825 \uc8fc\uc2dc\ub294 \uc790 \uc548\uc5d0\uc11c",
-    scripture_ref2: "\ube4c\ub9bd\ubcf4\uc11c 4:13",
-    growth: "\uc9c0\ub098\uce5c \uc774\uc0c1\uc8fc\uc758\uac00 \ud604\uc2e4\uc801 \uc0c1\ucc98\ub85c \uc774\uc5b4\uc9c8 \uc218 \uc788\uc2b5\ub2c8\ub2e4. \uc644\ubcbd\ud55c \uc138\uc0c1\uc744 \uae30\ub300\ud558\uae30\ubcf4\ub2e4, \ud558\ub098\ub2d8\uc774 \uc9c0\uae08 \uc774 \uc21c\uac04\uc5d0\ub3c4 \uc77c\ud558\uace0 \uacc4\uc2ec\uc744 \uc2e0\ub8b0\ud558\ub294 \ud6c8\ub828\uc744 \ud574\ubcf4\uc138\uc694."
-  },
-  ENFJ: {
-    name: "\ubaa8\uc138", emoji: "\ud83d\udd25", subtitle: "Moses \u2014 \ubbfc\uc871\uc744 \uc774\ub048 \uc911\ubcf4\uc790",
-    badge: "\uc5b8\ubcc0\ud615 \u00b7 \ud574\ubc29\uc758 \uc9c0\ub3c4\uc790",
-    desc: "\ubaa8\uc138\ub294 \ud558\ub098\ub2d8\uc758 \ubd80\ub984\uc744 \ubc1b\uc544 \uc774\uc2a4\ub77c\uc5d8 \ubc31\uc131\uc744 \uc774\uc9d1\ud2b8\uc5d0\uc11c \uc774\ub04c\uc5b4 \ub0b8 \uc704\ub300\ud55c \uc9c0\ub3c4\uc790\uc785\ub2c8\ub2e4. \uc790\uc2e0\ubcf4\ub2e4 \ubc31\uc131\uc744 \uba3c\uc800 \uc0dd\uac01\ud558\ub294 \ud76c\uc0dd\uc801 \uc0ac\ub791, \ud558\ub098\ub2d8\uacfc \uc0ac\ub78c \uc0ac\uc774\uc758 \uc911\ubcf4\uc790 \uc5ed\ud560, \uadf8\ub9ac\uace0 \ub180\ub77c\uc6b4 \uc124\ub4dd\uc758 \ub2a5\ub825\uc744 \uac00\uc84c\uc2b5\ub2c8\ub2e4.",
-    strengths: [{t:"\uc601\uac10\uc801 \uc18c\ud1b5",d:"\uc0ac\ub78c\ub4e4\uc758 \ub9c8\uc74c\uc744 \uc6c0\uc9c1\uc785\ub2c8\ub2e4"},{t:"\uc774\ud0c0\uc801 \ud5cc\uc2e0",d:"\uacf5\ub3d9\uccb4\ub97c \uc704\ud574 \uc790\uc2e0\uc744 \ud76c\uc0dd\ud569\ub2c8\ub2e4"},{t:"\uc911\ubcf4 \ub2a5\ub825",d:"\ub2e4\ub9ac\ub97c \ub193\uace0 \ud654\ud574\ub97c \uc774\ub055\ub2c8\ub2e4"},{t:"\uce74\ub9ac\uc2a4\ub9c8",d:"\uc790\uc5f0\uc2a4\ub7fd\uac8c \uc0ac\ub78c\ub4e4\uc774 \ub530\ub985\ub2c8\ub2e4"}],
-    scripture: "\uc8fc\uc758 \ubc31\uc131\uc744 \uc704\ud558\uc5ec \ub0b4 \uc774\ub984\uc744 \ubd88\ub7ec \uc8fc\uaed8\uc11c \ubcf5\uc744 \uc8fc\uc2dc\uae30\ub97c \uae30\ub3c4\ud558\ub098\uc774\ub2e4",
-    scripture_ref: "\ubbfc\uc218\uae30 6:27",
-    scripture2: "\ub0b4\uac00 \ub108\ub85c \ud070 \ubbfc\uc871\uc744 \uc774\ub8e8\uace0 \ub124\uac8c \ubcf5\uc744 \uc8fc\uc5b4 \ub124 \uc774\ub984\uc744 \ucc3d\ub300\ud558\uac8c \ud558\ub9ac\ub2c8",
-    scripture_ref2: "\ucc3d\uc138\uae30 12:2",
-    growth: "\ub2e4\ub978 \uc0ac\ub78c\ub4e4\uc758 \uae30\ub300\ub97c \ucda9\uc871\uc2dc\ud0a4\ub824\ub2e4 \uc9c0\uccd0\ubc84\ub9b4 \uc218 \uc788\uc2b5\ub2c8\ub2e4. \ubaa8\uc138\uac00 \uc7a5\uc778 \uc774\ub4dc\ub85c\uc758 \uc870\uc5b8\uc73c\ub85c \uc9d0\uc744 \ub098\ub234
+// ═══════════════════════════════════════
+// SVG 캐릭터 문자열 (innerHTML용)
+// ═══════════════════════════════════════
+const CHARS = {
+INTJ:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#FFD093"/>
+  <ellipse cx="60" cy="18" rx="26" ry="14" fill="#3D2314"/>
+  <circle cx="50" cy="36" r="5" fill="white"/><circle cx="70" cy="36" r="5" fill="white"/>
+  <circle cx="51" cy="37" r="3" fill="#1A3A6B"/><circle cx="71" cy="37" r="3" fill="#1A3A6B"/>
+  <circle cx="52" cy="36" r="1" fill="white"/><circle cx="72" cy="36" r="1" fill="white"/>
+  <path d="M44 30 Q50 27 56 30" stroke="#3D2314" stroke-width="2" fill="none"/>
+  <path d="M64 30 Q70 27 76 30" stroke="#3D2314" stroke-width="2" fill="none"/>
+  <path d="M52 46 Q60 53 68 46" stroke="#C06020" stroke-width="2" fill="none"/>
+  <circle cx="44" cy="44" r="6" fill="#FFB3A0" opacity="0.5"/>
+  <circle cx="76" cy="44" r="6" fill="#FFB3A0" opacity="0.5"/>
+  <rect x="30" y="64" width="60" height="55" rx="10" fill="#2A6BB5"/>
+  <rect x="40" y="64" width="40" height="8" fill="#1A4A8A"/>
+  <rect x="68" y="75" width="22" height="30" rx="4" fill="#F5DEB3"/>
+  <rect x="68" y="73" width="22" height="6" rx="3" fill="#C8A870"/>
+  <rect x="68" y="99" width="22" height="6" rx="3" fill="#C8A870"/>
+  <line x1="74" y1="83" x2="84" y2="83" stroke="#8B6914" stroke-width="1.5"/>
+  <line x1="74" y1="88" x2="84" y2="88" stroke="#8B6914" stroke-width="1.5"/>
+  <line x1="74" y1="93" x2="84" y2="93" stroke="#8B6914" stroke-width="1.5"/>
+  <ellipse cx="25" cy="85" rx="10" ry="16" fill="#2A6BB5"/>
+  <ellipse cx="95" cy="78" rx="10" ry="16" fill="#2A6BB5" transform="rotate(-20,95,78)"/>
+  <circle cx="25" cy="100" r="7" fill="#FFD093"/>
+  <circle cx="97" cy="90" r="7" fill="#FFD093"/>
+  <text x="36" y="90" font-size="14">⭐</text>
+</svg>`,
+ENTJ:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#FFD093"/>
+  <ellipse cx="60" cy="18" rx="26" ry="14" fill="#5C3317"/>
+  <rect x="36" y="12" width="48" height="10" rx="3" fill="#C9A84C"/>
+  <rect x="42" y="6" width="8" height="10" rx="2" fill="#C9A84C"/>
+  <rect x="56" y="4" width="8" height="12" rx="2" fill="#FFD700"/>
+  <rect x="70" y="6" width="8" height="10" rx="2" fill="#C9A84C"/>
+  <circle cx="44" cy="8" r="3" fill="#E84393"/>
+  <circle cx="60" cy="4" r="4" fill="#4A90E2"/>
+  <circle cx="76" cy="8" r="3" fill="#7ED321"/>
+  <circle cx="50" cy="36" r="5" fill="white"/><circle cx="70" cy="36" r="5" fill="white"/>
+  <circle cx="51" cy="37" r="3" fill="#2D1B00"/><circle cx="71" cy="37" r="3" fill="#2D1B00"/>
+  <circle cx="52" cy="36" r="1" fill="white"/><circle cx="72" cy="36" r="1" fill="white"/>
+  <path d="M44 29 L57 31" stroke="#5C3317" stroke-width="3" fill="none"/>
+  <path d="M63 31 L76 29" stroke="#5C3317" stroke-width="3" fill="none"/>
+  <path d="M51 47 Q60 55 69 47" stroke="#C06020" stroke-width="2.5" fill="none"/>
+  <circle cx="44" cy="44" r="6" fill="#FFB3A0" opacity="0.4"/>
+  <circle cx="76" cy="44" r="6" fill="#FFB3A0" opacity="0.4"/>
+  <rect x="28" y="64" width="64" height="58" rx="10" fill="#8B4513"/>
+  <rect x="38" y="64" width="44" height="8" fill="#6B3410"/>
+  <rect x="28" y="95" width="64" height="8" fill="#5C3317"/>
+  <rect x="52" y="93" width="16" height="12" rx="2" fill="#C9A84C"/>
+  <rect x="80" y="68" width="8" height="35" rx="3" fill="#8B6914"/>
+  <rect x="74" y="64" width="20" height="14" rx="4" fill="#5C3317"/>
+  <ellipse cx="22" cy="83" rx="10" ry="18" fill="#8B4513"/>
+  <ellipse cx="98" cy="76" rx="10" ry="18" fill="#8B4513" transform="rotate(-15,98,76)"/>
+  <circle cx="22" cy="100" r="7" fill="#FFD093"/>
+  <circle cx="100" cy="92" r="7" fill="#FFD093"/>
+</svg>`,
+INFJ:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#FFDAB0"/>
+  <ellipse cx="60" cy="18" rx="24" ry="13" fill="#2C1810"/>
+  <text x="10" y="30" font-size="12">⭐</text>
+  <text x="95" y="25" font-size="10">✨</text>
+  <circle cx="50" cy="36" r="5.5" fill="white"/><circle cx="70" cy="36" r="5.5" fill="white"/>
+  <circle cx="51" cy="37" r="3.5" fill="#4A2800"/><circle cx="71" cy="37" r="3.5" fill="#4A2800"/>
+  <circle cx="52" cy="36" r="1.2" fill="white"/><circle cx="72" cy="36" r="1.2" fill="white"/>
+  <path d="M44 30 Q50 27 56 30" stroke="#2C1810" stroke-width="1.8" fill="none"/>
+  <path d="M64 30 Q70 27 76 30" stroke="#2C1810" stroke-width="1.8" fill="none"/>
+  <path d="M52 47 Q60 54 68 47" stroke="#C06020" stroke-width="2" fill="none"/>
+  <circle cx="44" cy="44" r="7" fill="#FFB3A0" opacity="0.5"/>
+  <circle cx="76" cy="44" r="7" fill="#FFB3A0" opacity="0.5"/>
+  <rect x="30" y="64" width="60" height="58" rx="10" fill="#E84393"/>
+  <rect x="30" y="72" width="60" height="10" fill="#F5A623"/>
+  <rect x="30" y="82" width="60" height="10" fill="#7ED321"/>
+  <rect x="30" y="92" width="60" height="10" fill="#4A90E2"/>
+  <rect x="30" y="102" width="60" height="20" rx="10" fill="#9B59B6"/>
+  <rect x="40" y="64" width="40" height="8" fill="#C0392B"/>
+  <ellipse cx="23" cy="84" rx="10" ry="17" fill="#E84393"/>
+  <ellipse cx="97" cy="84" rx="10" ry="17" fill="#9B59B6"/>
+  <circle cx="23" cy="100" r="7" fill="#FFDAB0"/>
+  <circle cx="97" cy="100" r="7" fill="#FFDAB0"/>
+</svg>`,
+ENFJ:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#DEB887"/>
+  <ellipse cx="60" cy="18" rx="24" ry="12" fill="#8B6914"/>
+  <ellipse cx="60" cy="55" rx="18" ry="12" fill="#C8A870"/>
+  <path d="M42 48 Q50 62 60 65 Q70 62 78 48" fill="#C8A870"/>
+  <circle cx="50" cy="36" r="5" fill="white"/><circle cx="70" cy="36" r="5" fill="white"/>
+  <circle cx="51" cy="37" r="3" fill="#3D2000"/><circle cx="71" cy="37" r="3" fill="#3D2000"/>
+  <circle cx="52" cy="36" r="1" fill="white"/><circle cx="72" cy="36" r="1" fill="white"/>
+  <path d="M43 30 Q50 26 57 29" stroke="#8B6914" stroke-width="2.5" fill="none"/>
+  <path d="M63 29 Q70 26 77 30" stroke="#8B6914" stroke-width="2.5" fill="none"/>
+  <path d="M51 48 Q60 55 69 48" stroke="#A0522D" stroke-width="2" fill="none"/>
+  <rect x="28" y="66" width="64" height="56" rx="10" fill="#F5F0E0"/>
+  <rect x="38" y="66" width="44" height="8" fill="#E8E0CC"/>
+  <rect x="82" y="60" width="6" height="65" rx="3" fill="#8B4513"/>
+  <ellipse cx="85" cy="60" rx="5" ry="8" fill="#6B3410"/>
+  <text x="6" y="72" font-size="22">🔥</text>
+  <ellipse cx="22" cy="83" rx="10" ry="17" fill="#F5F0E0"/>
+  <ellipse cx="76" cy="83" rx="10" ry="17" fill="#F5F0E0"/>
+  <circle cx="22" cy="100" r="7" fill="#DEB887"/>
+  <circle cx="76" cy="100" r="7" fill="#DEB887"/>
+  <rect x="12" y="86" width="18" height="22" rx="3" fill="#C0C0C0"/>
+  <line x1="15" y1="93" x2="27" y2="93" stroke="#666" stroke-width="1"/>
+  <line x1="15" y1="97" x2="27" y2="97" stroke="#666" stroke-width="1"/>
+  <line x1="15" y1="101" x2="27" y2="101" stroke="#666" stroke-width="1"/>
+</svg>`,
+INTP:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="40" r="28" fill="#FFD0A0"/>
+  <rect x="34" y="14" width="52" height="12" rx="2" fill="#C9A84C"/>
+  <polygon points="34,14 44,2 54,14" fill="#C9A84C"/>
+  <polygon points="50,14 60,0 70,14" fill="#FFD700"/>
+  <polygon points="66,14 76,2 86,14" fill="#C9A84C"/>
+  <circle cx="44" cy="8" r="3" fill="#E84393"/>
+  <circle cx="60" cy="4" r="4" fill="#4A90E2"/>
+  <circle cx="76" cy="8" r="3" fill="#7ED321"/>
+  <circle cx="50" cy="38" r="5" fill="white"/><circle cx="70" cy="38" r="5" fill="white"/>
+  <circle cx="51" cy="39" r="3" fill="#2D4A00"/><circle cx="71" cy="39" r="3" fill="#2D4A00"/>
+  <circle cx="52" cy="38" r="1" fill="white"/><circle cx="72" cy="38" r="1" fill="white"/>
+  <circle cx="50" cy="38" r="8" fill="none" stroke="#8B6914" stroke-width="1.5"/>
+  <circle cx="70" cy="38" r="8" fill="none" stroke="#8B6914" stroke-width="1.5"/>
+  <line x1="58" y1="38" x2="62" y2="38" stroke="#8B6914" stroke-width="1.5"/>
+  <path d="M42 29 Q50 26 57 29" stroke="#5C3317" stroke-width="2" fill="none"/>
+  <path d="M63 29 Q70 26 78 29" stroke="#5C3317" stroke-width="2" fill="none"/>
+  <path d="M52 49 Q60 56 68 49" stroke="#C06020" stroke-width="2" fill="none"/>
+  <circle cx="44" cy="46" r="6" fill="#FFB3A0" opacity="0.4"/>
+  <circle cx="76" cy="46" r="6" fill="#FFB3A0" opacity="0.4"/>
+  <rect x="28" y="66" width="64" height="56" rx="10" fill="#6A0DAD"/>
+  <rect x="38" y="66" width="44" height="8" fill="#500A8A"/>
+  <rect x="36" y="80" width="28" height="22" rx="3" fill="#F5DEB3"/>
+  <rect x="36" y="80" width="5" height="22" fill="#C8A870"/>
+  <line x1="43" y1="86" x2="60" y2="86" stroke="#8B6914" stroke-width="1"/>
+  <line x1="43" y1="90" x2="60" y2="90" stroke="#8B6914" stroke-width="1"/>
+  <line x1="43" y1="94" x2="60" y2="94" stroke="#8B6914" stroke-width="1"/>
+  <ellipse cx="22" cy="83" rx="10" ry="17" fill="#6A0DAD"/>
+  <ellipse cx="98" cy="83" rx="10" ry="17" fill="#6A0DAD"/>
+  <circle cx="22" cy="100" r="7" fill="#FFD0A0"/>
+  <circle cx="98" cy="100" r="7" fill="#FFD0A0"/>
+</svg>`,
+ENTP:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#FDBCB4"/>
+  <ellipse cx="60" cy="18" rx="24" ry="13" fill="#3D1C0A"/>
+  <circle cx="49" cy="36" r="6" fill="white"/><circle cx="71" cy="36" r="6" fill="white"/>
+  <circle cx="50" cy="37" r="4" fill="#8B0000"/><circle cx="72" cy="37" r="4" fill="#8B0000"/>
+  <circle cx="51" cy="36" r="1.5" fill="white"/><circle cx="73" cy="36" r="1.5" fill="white"/>
+  <path d="M42 28 Q49 24 57 28" stroke="#3D1C0A" stroke-width="2.5" fill="none"/>
+  <path d="M63 28 Q71 24 78 28" stroke="#3D1C0A" stroke-width="2.5" fill="none"/>
+  <path d="M49 48 Q60 58 71 48" stroke="#C06020" stroke-width="2.5" fill="none"/>
+  <circle cx="43" cy="44" r="8" fill="#FFB3A0" opacity="0.5"/>
+  <circle cx="77" cy="44" r="8" fill="#FFB3A0" opacity="0.5"/>
+  <rect x="28" y="66" width="64" height="56" rx="10" fill="#C0392B"/>
+  <rect x="38" y="66" width="44" height="8" fill="#A93226"/>
+  <rect x="80" y="68" width="4" height="28" rx="2" fill="#F5DEB3"/>
+  <polygon points="80,96 84,96 82,106" fill="#3D1C0A"/>
+  <ellipse cx="22" cy="83" rx="10" ry="17" fill="#C0392B"/>
+  <ellipse cx="98" cy="76" rx="10" ry="16" fill="#C0392B" transform="rotate(-20,98,76)"/>
+  <circle cx="22" cy="100" r="7" fill="#FDBCB4"/>
+  <circle cx="100" cy="90" r="7" fill="#FDBCB4"/>
+  <text x="4" y="50" font-size="16">⚡</text>
+  <text x="96" y="50" font-size="16">⚡</text>
+</svg>`,
+INFP:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#FFD0B0"/>
+  <ellipse cx="60" cy="18" rx="22" ry="12" fill="#8B4513"/>
+  <circle cx="50" cy="36" r="5.5" fill="white"/><circle cx="70" cy="36" r="5.5" fill="white"/>
+  <circle cx="51" cy="37" r="3.5" fill="#3B1A08"/><circle cx="71" cy="37" r="3.5" fill="#3B1A08"/>
+  <circle cx="52" cy="36" r="1.2" fill="white"/><circle cx="72" cy="36" r="1.2" fill="white"/>
+  <circle cx="55" cy="33" r="1.5" fill="#FFD700" opacity="0.8"/>
+  <circle cx="75" cy="33" r="1.5" fill="#FFD700" opacity="0.8"/>
+  <path d="M44 30 Q50 27 56 30" stroke="#8B4513" stroke-width="1.8" fill="none"/>
+  <path d="M64 30 Q70 27 76 30" stroke="#8B4513" stroke-width="1.8" fill="none"/>
+  <path d="M50 47 Q60 57 70 47" stroke="#C06020" stroke-width="2.5" fill="none"/>
+  <circle cx="44" cy="44" r="7" fill="#FFB3A0" opacity="0.6"/>
+  <circle cx="76" cy="44" r="7" fill="#FFB3A0" opacity="0.6"/>
+  <rect x="30" y="66" width="60" height="56" rx="10" fill="#27AE60"/>
+  <rect x="40" y="66" width="40" height="8" fill="#1E8449"/>
+  <path d="M18 78 Q12 100 20 115" stroke="#8B4513" stroke-width="3" fill="none"/>
+  <line x1="18" y1="78" x2="20" y2="115" stroke="#8B4513" stroke-width="2"/>
+  <line x1="18" y1="82" x2="20" y2="82" stroke="#F5DEB3" stroke-width="1.5"/>
+  <line x1="17" y1="89" x2="20" y2="91" stroke="#F5DEB3" stroke-width="1.5"/>
+  <line x1="16" y1="96" x2="20" y2="99" stroke="#F5DEB3" stroke-width="1.5"/>
+  <line x1="16" y1="103" x2="20" y2="107" stroke="#F5DEB3" stroke-width="1.5"/>
+  <ellipse cx="24" cy="83" rx="10" ry="17" fill="#27AE60"/>
+  <ellipse cx="96" cy="83" rx="10" ry="17" fill="#27AE60"/>
+  <circle cx="24" cy="100" r="7" fill="#FFD0B0"/>
+  <circle cx="96" cy="100" r="7" fill="#FFD0B0"/>
+  <text x="90" y="55" font-size="18">🎵</text>
+</svg>`,
+ENFP:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#FFD0A0"/>
+  <ellipse cx="60" cy="18" rx="24" ry="13" fill="#5C3317"/>
+  <circle cx="49" cy="36" r="6.5" fill="white"/><circle cx="71" cy="36" r="6.5" fill="white"/>
+  <circle cx="50" cy="37" r="4.5" fill="#1E3A6B"/><circle cx="72" cy="37" r="4.5" fill="#1E3A6B"/>
+  <circle cx="51.5" cy="35.5" r="1.5" fill="white"/><circle cx="73.5" cy="35.5" r="1.5" fill="white"/>
+  <path d="M42 28 Q49 23 57 27" stroke="#5C3317" stroke-width="2.2" fill="none"/>
+  <path d="M63 27 Q71 23 78 28" stroke="#5C3317" stroke-width="2.2" fill="none"/>
+  <path d="M48 49 Q60 62 72 49" stroke="#C06020" stroke-width="3" fill="none"/>
+  <circle cx="43" cy="45" r="9" fill="#FFB3A0" opacity="0.6"/>
+  <circle cx="77" cy="45" r="9" fill="#FFB3A0" opacity="0.6"/>
+  <rect x="28" y="66" width="64" height="56" rx="10" fill="#2980B9"/>
+  <rect x="38" y="66" width="44" height="8" fill="#1A6898"/>
+  <ellipse cx="92" cy="88" rx="14" ry="8" fill="#C0C0C0"/>
+  <polygon points="106,88 114,82 114,94" fill="#A0A0A0"/>
+  <circle cx="86" cy="86" r="1.5" fill="#333"/>
+  <ellipse cx="22" cy="83" rx="10" ry="17" fill="#2980B9"/>
+  <ellipse cx="98" cy="80" rx="10" ry="16" fill="#2980B9" transform="rotate(-10,98,80)"/>
+  <circle cx="22" cy="100" r="7" fill="#FFD0A0"/>
+  <circle cx="100" cy="95" r="7" fill="#FFD0A0"/>
+  <text x="4" y="115" font-size="14">🌊</text>
+</svg>`,
+ISTJ:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#DEB887"/>
+  <ellipse cx="60" cy="56" rx="20" ry="16" fill="#D2B48C"/>
+  <path d="M40 50 Q50 68 60 72 Q70 68 80 50" fill="#D2B48C"/>
+  <ellipse cx="60" cy="16" rx="26" ry="12" fill="#8B7355"/>
+  <circle cx="50" cy="36" r="5" fill="white"/><circle cx="70" cy="36" r="5" fill="white"/>
+  <circle cx="51" cy="37" r="3" fill="#3B2800"/><circle cx="71" cy="37" r="3" fill="#3B2800"/>
+  <circle cx="52" cy="36" r="1" fill="white"/><circle cx="72" cy="36" r="1" fill="white"/>
+  <path d="M44 30 Q50 27 56 30" stroke="#8B7355" stroke-width="2" fill="none"/>
+  <path d="M64 30 Q70 27 76 30" stroke="#8B7355" stroke-width="2" fill="none"/>
+  <path d="M52 47 Q60 54 68 47" stroke="#A0522D" stroke-width="2" fill="none"/>
+  <circle cx="44" cy="44" r="6" fill="#FFB3A0" opacity="0.4"/>
+  <circle cx="76" cy="44" r="6" fill="#FFB3A0" opacity="0.4"/>
+  <rect x="30" y="68" width="60" height="54" rx="10" fill="#A0522D"/>
+  <rect x="40" y="68" width="40" height="8" fill="#8B4513"/>
+  <rect x="30" y="100" width="40" height="18" rx="4" fill="#8B4513"/>
+  <path d="M30 100 Q50 88 70 100" fill="#6B3410"/>
+  <rect x="46" y="92" width="8" height="10" rx="2" fill="#5C2D0A"/>
+  <ellipse cx="24" cy="84" rx="10" ry="17" fill="#A0522D"/>
+  <ellipse cx="96" cy="84" rx="10" ry="17" fill="#A0522D"/>
+  <circle cx="24" cy="101" r="7" fill="#DEB887"/>
+  <circle cx="96" cy="101" r="7" fill="#DEB887"/>
+  <text x="88" y="72" font-size="16">🕊️</text>
+</svg>`,
+ESTJ:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#FFD0A0"/>
+  <ellipse cx="60" cy="22" rx="26" ry="18" fill="#8B8680"/>
+  <rect x="34" y="22" width="52" height="14" rx="2" fill="#A09890"/>
+  <rect x="52" y="12" width="16" height="16" rx="2" fill="#A09890"/>
+  <circle cx="50" cy="38" r="5" fill="white"/><circle cx="70" cy="38" r="5" fill="white"/>
+  <circle cx="51" cy="39" r="3" fill="#1A1A00"/><circle cx="71" cy="39" r="3" fill="#1A1A00"/>
+  <circle cx="52" cy="38" r="1" fill="white"/><circle cx="72" cy="38" r="1" fill="white"/>
+  <path d="M44 31 L57 33" stroke="#3D3200" stroke-width="3" fill="none"/>
+  <path d="M63 33 L76 31" stroke="#3D3200" stroke-width="3" fill="none"/>
+  <path d="M52 48 Q60 54 68 48" stroke="#A0522D" stroke-width="2.5" fill="none"/>
+  <rect x="28" y="66" width="64" height="56" rx="10" fill="#708090"/>
+  <rect x="38" y="66" width="44" height="8" fill="#5F7080"/>
+  <ellipse cx="60" cy="90" rx="12" ry="8" fill="#8B8680"/>
+  <path d="M12 72 L28 72 L28 95 Q20 108 12 95 Z" fill="#C0392B"/>
+  <line x1="20" y1="72" x2="20" y2="103" stroke="#FFD700" stroke-width="1.5"/>
+  <line x1="12" y1="86" x2="28" y2="86" stroke="#FFD700" stroke-width="1.5"/>
+  <rect x="84" y="58" width="5" height="40" rx="2" fill="#A0A8B0"/>
+  <rect x="78" y="68" width="17" height="5" rx="2" fill="#8B6914"/>
+  <rect x="84" y="98" width="5" height="12" rx="2" fill="#8B6914"/>
+  <ellipse cx="22" cy="83" rx="10" ry="17" fill="#708090"/>
+  <ellipse cx="98" cy="80" rx="10" ry="16" fill="#708090"/>
+  <circle cx="22" cy="100" r="7" fill="#FFD0A0"/>
+  <circle cx="98" cy="95" r="7" fill="#FFD0A0"/>
+</svg>`,
+ISFJ:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#FFDAB9"/>
+  <ellipse cx="60" cy="20" rx="28" ry="16" fill="#E84393" opacity="0.8"/>
+  <ellipse cx="60" cy="18" rx="28" ry="10" fill="#C0392B" opacity="0.7"/>
+  <circle cx="50" cy="38" r="5" fill="white"/><circle cx="70" cy="38" r="5" fill="white"/>
+  <circle cx="51" cy="39" r="3" fill="#3B1A00"/><circle cx="71" cy="39" r="3" fill="#3B1A00"/>
+  <circle cx="52" cy="38" r="1" fill="white"/><circle cx="72" cy="38" r="1" fill="white"/>
+  <path d="M44 32 Q50 29 56 32" stroke="#8B4513" stroke-width="1.8" fill="none"/>
+  <path d="M64 32 Q70 29 76 32" stroke="#8B4513" stroke-width="1.8" fill="none"/>
+  <path d="M51 47 Q60 56 69 47" stroke="#C06020" stroke-width="2.2" fill="none"/>
+  <circle cx="44" cy="44" r="8" fill="#FFB3A0" opacity="0.6"/>
+  <circle cx="76" cy="44" r="8" fill="#FFB3A0" opacity="0.6"/>
+  <rect x="30" y="66" width="60" height="56" rx="10" fill="#E8D5A0"/>
+  <rect x="40" y="66" width="40" height="8" fill="#D4C090"/>
+  <rect x="38" y="78" width="44" height="36" rx="6" fill="#F5DEB3"/>
+  <rect x="88" y="70" width="4" height="32" rx="2" fill="#8B6914"/>
+  <ellipse cx="88" cy="66" rx="5" ry="8" fill="#DAA520"/>
+  <ellipse cx="93" cy="68" rx="4" ry="7" fill="#C8960C"/>
+  <ellipse cx="83" cy="68" rx="4" ry="7" fill="#C8960C"/>
+  <ellipse cx="24" cy="83" rx="10" ry="17" fill="#E8D5A0"/>
+  <ellipse cx="96" cy="80" rx="10" ry="16" fill="#E8D5A0" transform="rotate(-10,96,80)"/>
+  <circle cx="24" cy="100" r="7" fill="#FFDAB9"/>
+  <circle cx="98" cy="94" r="7" fill="#FFDAB9"/>
+  <text x="4" y="70" font-size="16">🌸</text>
+</svg>`,
+ESFJ:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#FFD0A0"/>
+  <ellipse cx="60" cy="20" rx="28" ry="15" fill="#E67E22"/>
+  <ellipse cx="60" cy="17" rx="26" ry="10" fill="#D35400"/>
+  <circle cx="50" cy="38" r="5.5" fill="white"/><circle cx="70" cy="38" r="5.5" fill="white"/>
+  <circle cx="51" cy="39" r="3.5" fill="#3B1A00"/><circle cx="71" cy="39" r="3.5" fill="#3B1A00"/>
+  <circle cx="52" cy="38" r="1.2" fill="white"/><circle cx="72" cy="38" r="1.2" fill="white"/>
+  <path d="M44 31 Q50 28 56 31" stroke="#8B4513" stroke-width="2" fill="none"/>
+  <path d="M64 31 Q70 28 76 31" stroke="#8B4513" stroke-width="2" fill="none"/>
+  <path d="M50 48 Q60 60 70 48" stroke="#C06020" stroke-width="2.5" fill="none"/>
+  <circle cx="43" cy="45" r="8" fill="#FFB3A0" opacity="0.6"/>
+  <circle cx="77" cy="45" r="8" fill="#FFB3A0" opacity="0.6"/>
+  <rect x="28" y="66" width="64" height="56" rx="10" fill="#E67E22"/>
+  <rect x="38" y="66" width="44" height="8" fill="#CA6F1E"/>
+  <rect x="36" y="76" width="48" height="38" rx="6" fill="#F8C471"/>
+  <ellipse cx="22" cy="95" rx="16" ry="6" fill="#8B4513"/>
+  <circle cx="16" cy="91" r="5" fill="#E74C3C"/>
+  <circle cx="22" cy="89" r="4" fill="#F39C12"/>
+  <circle cx="28" cy="91" r="5" fill="#27AE60"/>
+  <ellipse cx="22" cy="84" rx="10" ry="17" fill="#E67E22"/>
+  <ellipse cx="98" cy="84" rx="10" ry="17" fill="#E67E22"/>
+  <circle cx="22" cy="101" r="7" fill="#FFD0A0"/>
+  <circle cx="98" cy="101" r="7" fill="#FFD0A0"/>
+  <text x="90" y="72" font-size="16">❤️</text>
+</svg>`,
+ISTP:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#DEB887"/>
+  <ellipse cx="60" cy="18" rx="28" ry="15" fill="#8B4513"/>
+  <rect x="32" y="28" width="10" height="40" rx="5" fill="#8B4513"/>
+  <rect x="78" y="28" width="10" height="40" rx="5" fill="#8B4513"/>
+  <circle cx="50" cy="36" r="5.5" fill="white"/><circle cx="70" cy="36" r="5.5" fill="white"/>
+  <circle cx="51" cy="37" r="3.5" fill="#2D1B00"/><circle cx="71" cy="37" r="3.5" fill="#2D1B00"/>
+  <circle cx="52" cy="36" r="1.2" fill="white"/><circle cx="72" cy="36" r="1.2" fill="white"/>
+  <path d="M43 29 L57 31" stroke="#5C3317" stroke-width="3" fill="none"/>
+  <path d="M63 31 L77 29" stroke="#5C3317" stroke-width="3" fill="none"/>
+  <path d="M51 47 Q60 55 69 47" stroke="#A0522D" stroke-width="2.5" fill="none"/>
+  <circle cx="44" cy="44" r="6" fill="#FFB3A0" opacity="0.4"/>
+  <circle cx="76" cy="44" r="6" fill="#FFB3A0" opacity="0.4"/>
+  <rect x="26" y="66" width="68" height="56" rx="12" fill="#CD853F"/>
+  <ellipse cx="44" cy="82" rx="12" ry="10" fill="#B8860B"/>
+  <ellipse cx="76" cy="82" rx="12" ry="10" fill="#B8860B"/>
+  <ellipse cx="18" cy="82" rx="13" ry="20" fill="#CD853F"/>
+  <ellipse cx="102" cy="82" rx="13" ry="20" fill="#CD853F"/>
+  <circle cx="18" cy="102" r="9" fill="#DEB887"/>
+  <circle cx="102" cy="102" r="9" fill="#DEB887"/>
+  <ellipse cx="18" cy="76" rx="10" ry="8" fill="#B8860B"/>
+  <ellipse cx="102" cy="76" rx="10" ry="8" fill="#B8860B"/>
+  <text x="90" y="55" font-size="18">💪</text>
+</svg>`,
+ESTP:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#FFD0A0"/>
+  <ellipse cx="60" cy="18" rx="24" ry="12" fill="#3D2314"/>
+  <circle cx="49" cy="37" r="6" fill="white"/><circle cx="71" cy="37" r="6" fill="white"/>
+  <circle cx="50" cy="38" r="4" fill="#1A3A00"/><circle cx="72" cy="38" r="4" fill="#1A3A00"/>
+  <circle cx="51.5" cy="37" r="1.5" fill="white"/><circle cx="73.5" cy="37" r="1.5" fill="white"/>
+  <path d="M42 29 L57 31" stroke="#3D2314" stroke-width="2.5" fill="none"/>
+  <path d="M63 31 L78 29" stroke="#3D2314" stroke-width="2.5" fill="none"/>
+  <path d="M49 49 Q60 60 71 49" stroke="#C06020" stroke-width="3" fill="none"/>
+  <circle cx="43" cy="45" r="8" fill="#FFB3A0" opacity="0.5"/>
+  <circle cx="77" cy="45" r="8" fill="#FFB3A0" opacity="0.5"/>
+  <rect x="28" y="66" width="64" height="56" rx="10" fill="#1E8449"/>
+  <rect x="38" y="66" width="44" height="8" fill="#196F3D"/>
+  <rect x="28" y="96" width="64" height="7" fill="#8B4513"/>
+  <ellipse cx="22" cy="102" rx="12" ry="15" fill="#C0392B"/>
+  <ellipse cx="22" cy="88" rx="10" ry="6" fill="#A93226"/>
+  <ellipse cx="22" cy="116" rx="12" ry="4" fill="#922B21"/>
+  <rect x="84" y="72" width="6" height="35" rx="3" fill="#8B4513"/>
+  <text x="78" y="75" font-size="20">🔦</text>
+  <ellipse cx="22" cy="84" rx="10" ry="17" fill="#1E8449"/>
+  <ellipse cx="98" cy="80" rx="10" ry="16" fill="#1E8449" transform="rotate(-15,98,80)"/>
+  <circle cx="22" cy="101" r="7" fill="#FFD0A0"/>
+  <circle cx="100" cy="94" r="7" fill="#FFD0A0"/>
+</svg>`,
+ISFP:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="38" r="28" fill="#FFDAB9"/>
+  <ellipse cx="60" cy="18" rx="28" ry="16" fill="#3D1C0A"/>
+  <rect x="32" y="24" width="10" height="50" rx="5" fill="#3D1C0A"/>
+  <rect x="78" y="24" width="10" height="50" rx="5" fill="#3D1C0A"/>
+  <path d="M34 28 Q60 22 86 28" stroke="#E84393" stroke-width="3" fill="none"/>
+  <circle cx="50" cy="37" r="5.5" fill="white"/><circle cx="70" cy="37" r="5.5" fill="white"/>
+  <circle cx="51" cy="38" r="3.5" fill="#3B1A00"/><circle cx="71" cy="38" r="3.5" fill="#3B1A00"/>
+  <circle cx="52" cy="37" r="1.2" fill="white"/><circle cx="72" cy="37" r="1.2" fill="white"/>
+  <path d="M44 31 Q50 28 56 31" stroke="#3D1C0A" stroke-width="1.8" fill="none"/>
+  <path d="M64 31 Q70 28 76 31" stroke="#3D1C0A" stroke-width="1.8" fill="none"/>
+  <path d="M52 47 Q60 55 68 47" stroke="#C06020" stroke-width="2" fill="none"/>
+  <circle cx="44" cy="44" r="8" fill="#FFB3A0" opacity="0.6"/>
+  <circle cx="76" cy="44" r="8" fill="#FFB3A0" opacity="0.6"/>
+  <rect x="30" y="66" width="60" height="56" rx="10" fill="#9B59B6"/>
+  <rect x="40" y="66" width="40" height="8" fill="#8E44AD"/>
+  <ellipse cx="92" cy="92" rx="8" ry="12" fill="#F5DEB3"/>
+  <rect x="88" y="79" width="8" height="8" rx="2" fill="#D4A853"/>
+  <ellipse cx="92" cy="80" rx="4" ry="3" fill="#C8A870"/>
+  <ellipse cx="24" cy="83" rx="10" ry="17" fill="#9B59B6"/>
+  <ellipse cx="96" cy="80" rx="10" ry="16" fill="#9B59B6" transform="rotate(-10,96,80)"/>
+  <circle cx="24" cy="100" r="7" fill="#FFDAB9"/>
+  <circle cx="98" cy="94" r="7" fill="#FFDAB9"/>
+  <text x="4" y="68" font-size="14">🌸</text>
+  <text x="96" y="115" font-size="12">✨</text>
+</svg>`,
+ESFP:`<svg viewBox="0 0 120 140" width="120" height="140">
+  <circle cx="60" cy="36" r="28" fill="#FFDAB9"/>
+  <ellipse cx="60" cy="16" rx="28" ry="16" fill="#C0392B"/>
+  <ellipse cx="60" cy="14" rx="26" ry="10" fill="#E74C3C"/>
+  <circle cx="44" cy="12" r="4" fill="#F1C40F"/>
+  <circle cx="60" cy="8" r="5" fill="#F39C12"/>
+  <circle cx="76" cy="12" r="4" fill="#F1C40F"/>
+  <circle cx="49" cy="36" r="6.5" fill="white"/><circle cx="71" cy="36" r="6.5" fill="white"/>
+  <circle cx="50" cy="37" r="4.5" fill="#8B0000"/><circle cx="72" cy="37" r="4.5" fill="#8B0000"/>
+  <circle cx="51.5" cy="35.5" r="1.5" fill="white"/><circle cx="73.5" cy="35.5" r="1.5" fill="white"/>
+  <circle cx="56" cy="32" r="2" fill="#FFD700" opacity="0.9"/>
+  <circle cx="78" cy="32" r="2" fill="#FFD700" opacity="0.9"/>
+  <path d="M42 28 Q49 23 57 27" stroke="#C0392B" stroke-width="2.2" fill="none"/>
+  <path d="M63 27 Q71 23 78 28" stroke="#C0392B" stroke-width="2.2" fill="none"/>
+  <path d="M47 48 Q60 65 73 48" stroke="#C06020" stroke-width="3" fill="none"/>
+  <circle cx="42" cy="45" r="9" fill="#FFB3A0" opacity="0.7"/>
+  <circle cx="78" cy="45" r="9" fill="#FFB3A0" opacity="0.7"/>
+  <rect x="28" y="66" width="64" height="56" rx="12" fill="#E74C3C"/>
+  <rect x="28" y="75" width="64" height="10" fill="#F39C12"/>
+  <rect x="28" y="85" width="64" height="10" fill="#F1C40F"/>
+  <rect x="28" y="95" width="64" height="27" rx="12" fill="#E74C3C"/>
+  <circle cx="16" cy="86" r="15" fill="none" stroke="#8B4513" stroke-width="4"/>
+  <circle cx="16" cy="86" r="11" fill="#F5DEB3" opacity="0.5"/>
+  <circle cx="8" cy="76" r="3" fill="#C9A84C"/>
+  <circle cx="24" cy="76" r="3" fill="#C9A84C"/>
+  <circle cx="5" cy="88" r="3" fill="#C9A84C"/>
+  <circle cx="27" cy="88" r="3" fill="#C9A84C"/>
+  <ellipse cx="20" cy="83" rx="11" ry="17" fill="#E74C3C" transform="rotate(20,20,83)"/>
+  <ellipse cx="100" cy="83" rx="11" ry="17" fill="#F39C12" transform="rotate(-20,100,83)"/>
+  <circle cx="11" cy="96" r="8" fill="#FFDAB9"/>
+  <circle cx="100" cy="100" r="8" fill="#FFDAB9"/>
+  <text x="90" y="55" font-size="18">🎶</text>
+  <text x="96" y="115" font-size="14">🎉</text>
+</svg>`
+};
+
+// ═══════════════════════════════════════
+// MBTI 데이터
+// ═══════════════════════════════════════
+const DATA = {
+INTJ:{name:"다니엘",subtitle:"📜 지혜의 왕자",color:"#2A6BB5",typeName:"전략가",emoji:"🦁📚✨",
+  desc:"다니엘은 엄청난 지혜와 똑똑한 머리를 가진 인물이에요! 🧠 나쁜 왕 앞에서도 절대 신앙을 포기하지 않았고, 사자 굴 속에서도 두려워하지 않았어요. 하나님이 주신 지혜로 꿈도 척척 해석하고, 어떤 문제도 해결했답니다! 💪",
+  strengths:["🧠 엄청 똑똑해요","🎯 목표를 꼭 이뤄요","💎 원칙을 지켜요","🔍 꿰뚫어 봐요"],
+  scr1:"지혜는 하나님께로부터 나와요. 하나님이 주시는 지식과 명철이 제일이에요! 🌟",ref1:"📖 잠언 2:6",
+  scr2:"하나님이 다니엘에게 지식과 총명을 주셨어요. 하나님은 우리에게도 지혜를 주실 수 있어요! ✨",ref2:"📖 다니엘 1:17",
+  growth:"🌱 가끔 혼자 다 하려고 해요. 친구들과 함께하면 더 강해져요! 다니엘도 세 친구와 함께 기도했답니다. 우리 주변 친구들을 소중히 여겨봐요! 🤝"},
+ENTJ:{name:"느헤미야",subtitle:"🏗️ 성벽을 세운 영웅",color:"#8B4513",typeName:"지도자",emoji:"⚒️👑🔥",
+  desc:"느헤미야는 무너진 성벽을 다시 세운 용감한 리더예요! 🏰 나쁜 사람들이 방해해도 절대 포기하지 않았어요. 52일 만에 성벽 완성! 그것도 기도하면서요! 🙏 '할 수 있어!'라는 믿음으로 모든 사람을 이끌었답니다.",
+  strengths:["👑 멋진 리더예요","⚡ 바로 행동해요","🎯 목표를 이뤄요","🔧 문제를 고쳐요"],
+  scr1:"이 일은 하나님이 도우신 거예요! 적들도 무서워서 도망갔어요. 우리도 하나님과 함께면 무엇이든 할 수 있어요! 💪",ref1:"📖 느헤미야 6:16",
+  scr2:"강하고 담대하라! 두려워하지 말아요. 하나님이 항상 함께하세요! 🛡️",ref2:"📖 신명기 31:6",
+  growth:"🌱 다른 사람들의 마음도 살펴봐요. 빠른 것도 좋지만, 친구들의 이야기를 먼저 들어주면 더 좋은 리더가 될 수 있어요! 👂"},
+INFJ:{name:"요셉",subtitle:"🌈 꿈꾸는 왕자",color:"#E84393",typeName:"예언자",emoji:"⭐🌈💫",
+  desc:"요셉은 형들에게 팔려 이집트 노예가 됐지만, 하나님이 꿈을 통해 미래를 보여주셨어요! 🌙 감옥에 갇혀도, 억울한 일을 당해도 포기하지 않았어요. 결국 이집트의 총리가 되어 많은 사람을 구했답니다! 놀랍죠? 😲",
+  strengths:["👁️ 미래를 내다봐요","💝 공감을 잘해요","🌟 희망을 잃지 않아요","🎨 창의적이에요"],
+  scr1:"형들이 나를 팔았어도 괜찮아요! 하나님이 나를 먼저 보내셨으니까요. 나쁜 일도 결국 좋게 만드시는 하나님이에요! 🌈",ref1:"📖 창세기 45:5",
+  scr2:"나에게 능력 주시는 예수님 안에서 나는 모든 걸 할 수 있어요! 포기하지 마요! 💪✨",ref2:"📖 빌립보서 4:13",
+  growth:"🌱 모든 게 완벽하지 않아도 괜찮아요! 요셉도 실수하고 힘든 시간이 있었어요. 지금 이 순간도 하나님이 함께하고 있어요! 😊"},
+ENFJ:{name:"모세",subtitle:"🔥 홍해를 가른 용사",color:"#DAA520",typeName:"교사",emoji:"🔥⚡🌊",
+  desc:"모세는 홍해를 가르고, 이스라엘 백성을 이집트 노예에서 해방시킨 엄청난 영웅이에요! 💥 처음엔 '나는 말을 잘 못해요'라고 했지만, 하나님이 함께하시니까 해낼 수 있었어요! 지팡이 하나로 기적을 일으켰답니다! 🪄",
+  strengths:["🎤 사람들을 움직여요","💕 모두를 사랑해요","🌉 다리를 놓아요","⭐ 사람들이 따라와요"],
+  scr1:"하나님이 우리 이름을 불러 축복해 주세요. 우리는 하나님이 선택하신 소중한 사람들이에요! 👑",ref1:"📖 민수기 6:27",
+  scr2:"내가 너를 큰 민족으로 만들고 복을 줄 거야! 하나님의 약속은 반드시 이루어져요! 🌟",ref2:"📖 창세기 12:2",
+  growth:"🌱 모든 걸 혼자 하려다 힘들 수 있어요. 모세도 친구들한테 도움을 받았어요. 친구들한테 부탁하는 것도 용기예요! 🤗"},
+INTP:{name:"솔로몬",subtitle:"📚 지혜의 왕",color:"#6A0DAD",typeName:"사상가",emoji:"👑📖💡",
+  desc:"솔로몬은 하나님이 '원하는 게 뭐야?'라고 물었을 때 '지혜를 주세요!'라고 했어요! 💡 그래서 세상에서 제일 지혜로운 왕이 됐답니다. 잠언, 전도서 같은 성경도 썼고, 어려운 문제도 척척 해결했어요! 신기하죠? 🤔",
+  strengths:["💡 천재적 아이디어","🔬 뭐든 분석해요","📚 지식이 엄청나요","🎯 핵심을 찔러요"],
+  scr1:"지혜가 제일이에요! 지혜를 구해요. 가진 모든 것으로 지식을 얻어요! 📚✨",ref1:"📖 잠언 4:7",
+  scr2:"하나님을 경외하는 것이 지식의 시작이에요! 하나님을 알면 진짜 똑똑해져요! 🙏💡",ref2:"📖 잠언 1:7",
+  growth:"🌱 알기만 하고 행동 안 하면 아무것도 안 돼요! 솔로몬처럼 지혜를 실천하는 용기도 키워봐요. 할 수 있어요! 🚀"},
+ENTP:{name:"바울",subtitle:"⚡ 복음의 전사",color:"#C0392B",typeName:"토론왕",emoji:"⚡🗣️🌍",
+  desc:"바울은 처음에는 예수님을 믿는 사람들을 잡으러 다녔어요! 그런데 하나님을 만난 후 완전히 바뀌었답니다! 😮 전 세계를 돌아다니며 복음을 전했고, 감옥에서도 찬송을 불렀어요. 어떤 상황에서도 포기 안 해요! ✊",
+  strengths:["🗣️ 말을 잘해요","💡 아이디어가 넘쳐요","🌍 세상을 바꿔요","🔄 변화를 두려워 않아요"],
+  scr1:"누구에게나 맞춰서 복음을 전해요! 모든 방법으로 한 명이라도 더 구하고 싶어요! 💕",ref1:"📖 고린도전서 9:22",
+  scr2:"사랑의 빚 외에는 아무것도 빚지지 말아요! 서로 사랑하는 게 최고예요! ❤️",ref2:"📖 로마서 13:8",
+  growth:"🌱 논쟁에서 이기는 것보다 친구를 얻는 게 더 중요해요! 먼저 들어주는 연습을 해봐요. 경청이 최고의 대화예요! 👂"},
+INFP:{name:"다윗",subtitle:"🎵 하나님의 시인왕",color:"#27AE60",typeName:"예술가",emoji:"🎵👑💫",
+  desc:"다윗은 어릴 때 돌팔매 하나로 거대한 골리앗을 쓰러뜨린 용감한 소년이었어요! 🪨 시편이라는 아름다운 노래도 많이 지었고, 기쁠 때도 슬플 때도 하나님께 솔직하게 이야기했어요. '하나님 마음에 맞는 사람'이라고 불렸답니다! 💝",
+  strengths:["🎨 창의력이 넘쳐요","💝 감수성이 풍부해요","🙏 진심으로 예배해요","💫 꿈이 커요"],
+  scr1:"나를 만드신 것이 너무 신기하고 놀라워요! 하나님이 나를 정말 특별하게 만드셨어요! 🌟",ref1:"📖 시편 139:14",
+  scr2:"하나님, 내 마음을 살펴봐 주세요! 다윗처럼 하나님께 솔직하게 이야기해봐요! 🙏",ref2:"📖 시편 139:23",
+  growth:"🌱 완벽하지 않아도 괜찮아요! 다윗도 실수했지만 다시 일어났어요. 중요한 건 포기하지 않는 마음이에요! ❤️"},
+ENFP:{name:"베드로",subtitle:"🌊 물 위를 걸은 용사",color:"#2980B9",typeName:"열정왕",emoji:"🌊⚡🐟",
+  desc:"베드로는 '예수님, 물 위로 걸어가도 돼요?!'라고 물어보고 정말 물 위를 걸은 용감한 사람이에요! 🚶 실수도 많이 했지만, 성령을 받은 후에는 한 번 설교에 3,000명이나 예수님을 믿게 했답니다! 와우! 😲",
+  strengths:["🔥 열정이 넘쳐요","🚀 먼저 뛰어들어요","💕 관계가 풍성해요","⬆️ 넘어져도 일어나요"],
+  scr1:"예수님이 오라 하시면 물 위도 걸을 수 있어요! 용기 있게 도전해봐요! 🌊✨",ref1:"📖 마태복음 14:28-29",
+  scr2:"성령님이 오시면 우리가 권능을 받고 세상 끝까지 예수님의 증인이 돼요! 🌍",ref2:"📖 사도행전 1:8",
+  growth:"🌱 먼저 기도하고 행동해봐요! 베드로도 기도를 많이 배웠어요. 열정과 기도가 함께하면 최강이에요! 🙏💪"},
+ISTJ:{name:"노아",subtitle:"🚢 방주를 만든 믿음의 사람",color:"#A0522D",typeName:"성실왕",emoji:"🚢🕊️🌈",
+  desc:"노아는 100년이 넘는 시간 동안 아무도 없는 곳에서 배를 만들었어요! 🔨 주변 사람들이 다 비웃었지만 포기하지 않았어요. 하나님이 시키신 대로 묵묵히 했더니... 홍수에서 가족과 동물들을 모두 구했답니다! 비가 갠 후 무지개도 보여주셨어요! 🌈",
+  strengths:["✅ 끝까지 해내요","⏰ 한결같아요","🔧 실용적이에요","🤝 믿을 수 있어요"],
+  scr1:"노아는 하나님과 함께 걸었어요. 하나님이 시키신 대로 다 했어요! 우리도 그렇게 살 수 있어요! 🚶",ref1:"📖 창세기 6:9, 22",
+  scr2:"작은 일에 충성하는 사람이 큰 일도 할 수 있어요! 지금 작은 것부터 열심히 해봐요! 💪",ref2:"📖 누가복음 16:10",
+  growth:"🌱 새로운 것도 도전해봐요! 노아도 방주에서 나와 새 세상을 만났어요. 변화가 두렵더라도 하나님과 함께라면 괜찮아요! 🌈"},
+ESTJ:{name:"여호수아",subtitle:"⚔️ 약속의 땅 정복자",color:"#5D6D7E",typeName:"장군",emoji:"⚔️🛡️🏆",
+  desc:"여호수아는 40년 동안 광야를 헤맨 후 드디어 약속의 땅으로 들어간 장군이에요! 🎖️ 여리고 성벽도 무너뜨렸고, 하나님이 명령하신 대로 용감하게 싸웠어요. '나와 내 집은 여호와를 섬기겠어요!'라는 멋진 고백도 했답니다! 💪",
+  strengths:["⚡ 결단력 있어요","📋 체계적이에요","🎯 목표를 이뤄요","👥 팀을 이끌어요"],
+  scr1:"강하고 담대해야 해요! 율법대로 행하면 어디서나 형통해요! 하나님이 함께하세요! 💪",ref1:"📖 여호수아 1:7",
+  scr2:"나와 내 집은 여호와를 섬기겠어요! 이 멋진 고백을 같이 해봐요! 🏠❤️",ref2:"📖 여호수아 24:15",
+  growth:"🌱 기도 먼저, 행동은 나중에! 여호수아도 기도 없이 결정했다가 속은 적 있어요. 빠른 것도 좋지만 하나님께 먼저 물어봐요! 🙏"},
+ISFJ:{name:"룻",subtitle:"🌾 사랑의 며느리",color:"#E84393",typeName:"돌봄왕",emoji:"🌾💕🤲",
+  desc:"룻은 남편이 죽었을 때 시어머니 나오미를 혼자 두지 않았어요! 💕 '어디를 가도 함께 가요!'라고 했답니다. 이방인이었지만 밭에서 열심히 일하며 나오미를 돌봤어요. 결국 보아스와 결혼해서 예수님 조상이 되는 복을 받았어요! 🌟",
+  strengths:["💕 헌신적이에요","🤲 세심히 돌봐요","🤫 묵묵히 일해요","🤝 신뢰할 수 있어요"],
+  scr1:"어머니 가시는 곳에 나도 가요! 어머니 민족이 내 민족이에요! 이렇게 아름다운 사랑이에요! 💕",ref1:"📖 룻기 1:16",
+  scr2:"서로 사랑하면 우리가 예수님 제자인 줄 모든 사람이 알아요! 사랑이 최고예요! ❤️",ref2:"📖 요한복음 13:35",
+  growth:"🌱 나 자신도 소중해요! 남을 돌보다가 내가 힘들면 안 돼요. 예수님도 가끔 혼자 쉬셨어요. 나를 돌보는 것도 중요해요! 🌸"},
+ESFJ:{name:"마르다",subtitle:"🏠 최고의 호스트",color:"#E67E22",typeName:"섬김왕",emoji:"🏠💝🍽️",
+  desc:"마르다는 예수님이 오셨을 때 최고의 음식을 준비하려고 엄청 바빴어요! 🍳 가끔 욕심을 부리기도 했지만, '예수님은 그리스도이세요!'라는 아름다운 믿음의 고백도 했답니다. 오빠 나사로가 죽었을 때도 믿음을 잃지 않았어요! 🙏",
+  strengths:["🏠 환대를 잘해요","💝 실천적 사랑이에요","👥 사람들을 모아요","✅ 책임감 강해요"],
+  scr1:"예수님은 그리스도이시고 하나님의 아들이세요! 마르다의 믿음 고백이에요! 우리도 같이 고백해요! ✝️",ref1:"📖 요한복음 11:27",
+  scr2:"서로 사랑하는 것은 하나님께 속한 것이에요! 사랑하는 사람은 하나님을 아는 거예요! 💕",ref2:"📖 요한일서 4:7",
+  growth:"🌱 바쁜 것도 좋지만, 예수님 발 앞에 앉아 말씀 듣는 것이 제일 중요해요! 마리아처럼 말씀 먼저 들어봐요! 👂"},
+ISTP:{name:"삼손",subtitle:"💪 하나님의 슈퍼맨",color:"#CD853F",typeName:"행동왕",emoji:"💪⚡🦁",
+  desc:"삼손은 성경 최강의 힘을 가진 사람이에요! 💪 나귀 턱뼈 하나로 천 명과 싸웠고, 혼자서 성문을 뽑아 들었답니다! 와! 😱 힘의 비밀은 긴 머리카락에 있었어요. 마지막에 두 기둥을 무너뜨려 하나님께 영광을 돌렸어요!",
+  strengths:["⚡ 즉각 행동해요","🧩 문제를 혼자 해결해요","😎 위기에서 침착해요","🔧 실용적이에요"],
+  scr1:"하나님은 나의 힘이요 나의 노래예요! 하나님이 계시면 무엇이든 할 수 있어요! 💪",ref1:"📖 출애굽기 15:2",
+  scr2:"나의 힘이신 하나님, 내가 주님을 사랑해요! 힘의 진짜 근원은 하나님이에요! 🙏",ref2:"📖 시편 18:1",
+  growth:"🌱 강함 속에 약점이 있어요! 삼손처럼 나를 유혹하는 것에 조심해요. 기도로 약점을 하나님께 맡겨봐요! 🙏"},
+ESTP:{name:"기드온",subtitle:"🔔 300명으로 이긴 영웅",color:"#1E8449",typeName:"승부사",emoji:"🔔⚡🏆",
+  desc:"기드온은 처음엔 '나는 우리 가족에서 제일 작아요'라고 했지만, 하나님이 '강한 용사여!'라고 부르셨어요! 😮 단 300명으로 13만 5천 명의 적군을 이겼답니다. 횃불과 항아리와 나팔이면 충분했어요! 하나님이 함께하시면 숫자는 중요하지 않아요! 🎺",
+  strengths:["🎯 기회를 잡아요","📊 상황 파악 빨라요","🚀 용감하게 도전해요","⚡ 영향력이 있어요"],
+  scr1:"강한 용사여, 하나님이 너와 함께하신다! 이게 기드온에게 하신 말씀이지만, 우리한테도 하시는 말씀이에요! 💪",ref1:"📖 사사기 6:12",
+  scr2:"믿음은 바라는 것이 이루어지는 거예요. 보이지 않는 것을 믿는 거예요! 믿으면 돼요! 🌟",ref2:"📖 히브리서 11:1",
+  growth:"🌱 이기고 나서도 겸손해야 해요! 기드온이 승리 후 실수했어요. 성공 후에도 하나님께 영광 돌리는 연습을 해봐요! 🙏"},
+ISFP:{name:"마리아",subtitle:"🌸 순전한 예배자",color:"#9B59B6",typeName:"예배자",emoji:"🌸🕊️✨",
+  desc:"마리아는 '하나님의 뜻대로 되게 해주세요!'라고 한 순전한 소녀였어요! 🌟 아무도 이해 못하는 일이 생겼을 때도 하나님을 믿었답니다. 예수님 발 앞에 앉아 말씀 듣는 걸 제일 좋아했어요. 비싼 향유를 예수님께 부어 드렸을 때 예수님이 정말 기뻐하셨어요! 💝",
+  strengths:["🙏 순전한 믿음이에요","🌸 아름다움을 느껴요","💕 현재에 집중해요","✨ 조용한 강함이에요"],
+  scr1:"주님의 뜻대로 내게 되게 해주세요! 마리아의 고백이에요. 이렇게 기도해봐요! 🙏",ref1:"📖 누가복음 1:38",
+  scr2:"그 여자가 할 수 있는 일을 했어요! 마리아의 향유가 하나님을 기쁘게 했어요. 작은 것도 소중해요! 💝",ref2:"📖 마가복음 14:8",
+  growth:"🌱 너는 정말 소중한 사람이에요! 마리아처럼 조용해도 하나님이 다 보고 계세요. 자신을 소중히 여겨요! 💜"},
+ESFP:{name:"미리암",subtitle:"🥁 기쁨의 찬양 댄서",color:"#E74C3C",typeName:"기쁨왕",emoji:"🥁🎉🌊",
+  desc:"미리암은 홍해를 건넌 후 소고를 들고 춤추며 노래한 여선지자예요! 🎶 모세의 누나이기도 한데, 어릴 때 아기 모세를 지키기도 했어요. 하나님이 기적을 보여주시면 제일 먼저 뛰어나와서 기뻐하고 찬양하는 사람이랍니다! 🎊",
+  strengths:["🎵 기쁨이 넘쳐요","⚡ 에너지가 넘쳐요","🎉 분위기를 띄워요","🌟 표현력이 풍부해요"],
+  scr1:"하나님을 찬양해요! 높고 영화로우신 하나님! 미리암처럼 기쁘게 찬양해봐요! 🎵",ref1:"📖 출애굽기 15:21",
+  scr2:"이날은 하나님이 만드신 날이에요! 기뻐하고 즐거워해요! 매일매일이 하나님의 선물이에요! 🎁",ref2:"📖 시편 118:24",
+  growth:"🌱 에너지를 좋은 곳에 써요! 미리암도 한번 실수한 적 있어요. 기쁨과 열정을 하나님을 위해 쓰면 세상을 바꿀 수 있어요! 🌍"}
+};
+
+// ═══════════════════════════════════════
+// 퀴즈 문항
+// ═══════════════════════════════════════
+const QS = [
+  {phase:"⚡ 에너지 편",q:"🎉 친구들이랑 놀고 난 후 나는?",a:[{t:"😆 더 신나고 에너지가 솟아!",v:"E"},{t:"😌 집에 가서 혼자 쉬고 싶어",v:"I"}]},
+  {phase:"⚡ 에너지 편",q:"👥 모르는 사람을 만나면?",a:[{t:"😊 먼저 다가가서 인사해!",v:"E"},{t:"🙂 먼저 관찰하다가 천천히 말 걸어",v:"I"}]},
+  {phase:"⚡ 에너지 편",q:"📚 성경공부 시간에 나는?",a:[{t:"🙋 적극적으로 발표하고 토론해!",v:"E"},{t:"🤔 혼자 깊이 생각하다가 핵심만 말해",v:"I"}]},
+  {phase:"🔍 생각 편",q:"📖 성경 이야기를 들을 때?",a:[{t:"📸 실제 장면이 눈에 선히 보여!",v:"S"},{t:"💭 그 안에 담긴 더 깊은 의미가 궁금해",v:"N"}]},
+  {phase:"🔍 생각 편",q:"🙏 기도할 때 주로?",a:[{t:"📅 오늘 있었던 일들을 하나씩 말해",v:"S"},{t:"🌟 하나님의 큰 계획이나 미래를 생각해",v:"N"}]},
+  {phase:"🔍 생각 편",q:"✨ 하나님이 일하신다고 느낄 때?",a:[{t:"🚪 실제로 문이 열리고 일이 해결될 때",v:"S"},{t:"💡 마음속에 갑자기 확신이 올 때",v:"N"}]},
+  {phase:"❤️ 마음 편",q:"😢 친구가 슬퍼할 때 나는?",a:[{t:"💡 어떻게 하면 해결될지 방법을 찾아줘",v:"T"},{t:"🤗 일단 안아주고 같이 울어줘",v:"F"}]},
+  {phase:"❤️ 마음 편",q:"⚖️ 중요한 결정을 할 때?",a:[{t:"📊 이게 맞는 건지 논리적으로 따져봐",v:"T"},{t:"💝 내 마음이 뭘 원하는지 느껴봐",v:"F"}]},
+  {phase:"❤️ 마음 편",q:"🙌 봉사활동을 선택할 때?",a:[{t:"🎯 가장 효과적이고 필요한 곳에 가",v:"T"},{t:"💓 내 마음이 끌리는 곳에 가",v:"F"}]},
+  {phase:"📅 생활 편",q:"⏰ 숙제나 할 일이 생기면?",a:[{t:"📝 계획표 써서 하나씩 끝내",v:"J"},{t:"🌊 기분이 내킬 때 자연스럽게 해",v:"P"}]},
+  {phase:"📅 생활 편",q:"🎒 여행/수련회 준비는?",a:[{t:"✅ 미리 짐 싸고 체크리스트 확인해!",v:"J"},{t:"🎈 당일에 필요한 것만 챙겨도 돼~",v:"P"}]},
+  {phase:"📅 생활 편",q:"🌅 새로운 일이 생기면?",a:[{t:"🗓️ 계획 다 세우고 확실해지면 시작해",v:"J"},{t:"🚀 일단 해보면서 맞춰나가면 되지!",v:"P"}]}
+];
+
+// ═══════════════════════════════════════
+// 상태 변수
+// ═══════════════════════════════════════
+let ans = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+let curQ = 0;
+let curResult = null;
+let canAnswer = true;
+
+const TYPES = Object.keys(DATA);
+
+// ═══════════════════════════════════════
+// 화면 전환
+// ═══════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showIntro() { showScreen('intro'); }
+function showSelect() { buildSelectGrid(); showScreen('select'); }
+
+// ═══════════════════════════════════════
+// 인트로 미리보기 그리드
+// ═══════════════════════════════════════
+function buildPreview() {
+  const types = ['INFJ','ESTP','ISFP','ENFP','INTJ','ESFP'];
+  const grid = document.getElementById('previewGrid');
+  grid.innerHTML = types.map(t => `
+    <div class="preview-chip" onclick="showResult('${t}')"
+      style="border:2.5px solid ${DATA[t].color}30;color:${DATA[t].color};">
+      ${t}<br>${DATA[t].emoji[0]}
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════
+// MBTI 선택 그리드
+// ═══════════════════════════════════════
+function buildSelectGrid() {
+  const grid = document.getElementById('mbtiGrid');
+  grid.innerHTML = TYPES.map(t => `
+    <button class="mbti-type-btn" onclick="showResult('${t}')"
+      style="border:2.5px solid ${DATA[t].color}40;color:${DATA[t].color};">
+      ${t}<span class="mbti-emoji">${DATA[t].emoji[0]}</span>
+    </button>
+  `).join('');
+}
+
+// ═══════════════════════════════════════
+// 퀴즈
+// ═══════════════════════════════════════
+function startQuiz() {
+  ans = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+  curQ = 0;
+  canAnswer = true;
+  renderQ();
+  showScreen('quiz');
+}
+
+function renderQ() {
+  const q = QS[curQ];
+  const total = QS.length;
+  document.getElementById('qBadge').textContent = `${curQ+1} / ${total}`;
+  document.getElementById('progressFill').style.width = `${((curQ+1)/total)*100}%`;
+  document.getElementById('qPhase').textContent = q.phase;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('qOptions').innerHTML = q.a.map((a,i) => `
+    <button class="opt-btn" onclick="pickAnswer('${a.v}',this)">
+      <div class="opt-letter">${String.fromCharCode(65+i)}</div>
+      <div class="opt-text">${a.t}</div>
+    </button>
+  `).join('');
+}
+
+function pickAnswer(val, el) {
+  if (!canAnswer) return;
+  canAnswer = false;
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  ans[val]++;
+  setTimeout(() => {
+    curQ++;
+    if (curQ < QS.length) {
+      canAnswer = true;
+      renderQ();
+    } else {
+      const mbti =
+        (ans.E>=ans.I?'E':'I') +
+        (ans.S>=ans.N?'S':'N') +
+        (ans.T>=ans.F?'T':'F') +
+        (ans.J>=ans.P?'J':'P');
+      showResult(mbti);
+    }
+  }, 420);
+}
+
+// ═══════════════════════════════════════
+// 결과
+// ═══════════════════════════════════════
+function showResult(mbti) {
+  curResult = mbti;
+  const d = DATA[mbti];
+
+  // 히어로 배경색
+  document.getElementById('resultHero').style.background =
+    `linear-gradient(160deg,${d.color},${d.color}CC)`;
+
+  // 기본 정보
+  document.getElementById('rType').textContent = `나는 ${mbti} 유형 — ${d.typeName} 🎉`;
+  document.getElementById('rChar').innerHTML = CHARS[mbti];
+  document.getElementById('rName').textContent = d.name;
+  document.getElementById('rSub').textContent = d.subtitle;
+  document.getElementById('rEmoji').textContent = d.emoji;
+
+  // 섹션 라벨 색상
+  ['lbl1','lbl2','lbl3','lbl4','lbl5','lbl6'].forEach(id => {
+    document.getElementById(id).style.color = d.color;
+  });
+  ['line1','line2','line3','line4','line5','line6'].forEach(id => {
+    document.getElementById(id).style.background =
+      `linear-gradient(90deg,${d.color}40,transparent)`;
+  });
+
+  // 인물 소개
+  document.getElementById('rDesc').textContent = d.desc;
+
+  // 장점
+  document.getElementById('rStrengths').innerHTML = d.strengths.map(s => `
+    <div class="strength-item"
+      style="background:${d.color}14;border-left-color:${d.color};">
+      ${s}
+    </div>
+  `).join('');
+
+  // 말씀
+  document.getElementById('rScripText1').textContent = d.scr1;
+  document.getElementById('rScripRef1').textContent = d.ref1;
+  document.getElementById('rScripText2').textContent = d.scr2;
+  document.getElementById('rScripRef2').textContent = d.ref2;
+
+  // 성장
+  document.getElementById('rGrowth').textContent = d.growth;
+
+  // 다른 유형
+  document.getElementById('rOthers').innerHTML = TYPES.map(t => `
+    <button class="other-btn" onclick="showResult('${t}')"
+      style="background:${t===mbti?DATA[t].color:'white'};
+             border:2px solid ${DATA[t].color}50;
+             color:${t===mbti?'white':DATA[t].color};">
+      ${t}<span class="other-emoji">${DATA[t].emoji[0]}</span>
+    </button>
+  `).join('');
+
+  // 다시 해보기 버튼 색상
+  document.getElementById('btnRetry').style.background =
+    `linear-gradient(135deg,${d.color},${d.color}CC)`;
+  document.getElementById('btnRetry').style.boxShadow =
+    `0 6px 20px ${d.color}50`;
+
+  showScreen('result');
+}
+
+// ═══════════════════════════════════════
+// 초기화
+// ═══════════════════════════════════════
+buildPreview();
+</script>
+</body>
+</html>
