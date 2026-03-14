@@ -12,6 +12,7 @@ body { font-family:'Nanum Gothic',sans-serif; background:#FFF9F0; color:#222; ov
 /* ── 화면 전환 ── */
 .screen { display:none; min-height:100vh; }
 .screen.active { display:block; }
+#intro.active { display:flex; }
 
 /* ── 공통 버튼 ── */
 .btn-main {
@@ -195,7 +196,7 @@ body { font-family:'Nanum Gothic',sans-serif; background:#FFF9F0; color:#222; ov
 <body>
 
 <!-- ════════════ 인트로 ════════════ -->
-<div id="intro" class="screen active">
+<div id="intro" class="screen active" style="display:flex;">
   <div class="intro-cross">✝️</div>
   <div class="intro-title1">나의 성경 인물</div>
   <div class="intro-title2">찾기! 🎉</div>
@@ -851,9 +852,14 @@ const TYPES = Object.keys(DATA);
 // 화면 전환
 // ═══════════════════════════════════════
 function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
+  document.querySelectorAll('.screen').forEach(function(s) {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  var el = document.getElementById(id);
+  el.classList.add('active');
+  el.style.display = (id === 'intro') ? 'flex' : 'block';
+  window.scrollTo(0, 0);
 }
 function showIntro() { showScreen('intro'); }
 function showSelect() { buildSelectGrid(); showScreen('select'); }
